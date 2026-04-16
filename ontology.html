@@ -810,6 +810,25 @@ h3.subsec-title {
   .commercial-grid { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .article-meta { gap: 1rem; }
+
+  /* Force article header visible — CSS animations can silently fail on mobile */
+  .article-tag,
+  h1.article-title,
+  .article-sub,
+  .article-meta {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  /* Force above-fold reveal elements visible immediately */
+  .exec-summary.reveal,
+  .toc.reveal,
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 }
 
 @media (max-width: 480px) {
