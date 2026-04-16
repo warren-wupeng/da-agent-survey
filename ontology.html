@@ -811,6 +811,9 @@ h3.subsec-title {
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .article-meta { gap: 1rem; }
 
+  /* Hide inline TOC on mobile — hamburger nav serves same purpose */
+  .toc { display: none; }
+
   /* Force article header visible — CSS animations can silently fail on mobile */
   .article-tag,
   h1.article-title,
@@ -823,7 +826,6 @@ h3.subsec-title {
 
   /* Force above-fold reveal elements visible immediately */
   .exec-summary.reveal,
-  .toc.reveal,
   .reveal {
     opacity: 1 !important;
     transform: none !important;
