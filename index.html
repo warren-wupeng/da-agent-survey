@@ -3,22 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>数据分析 Agent 领域综述（2024–2026）</title>
+<title>DA-Agent Survey · 数据分析 Agent 调研系列</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;1,300&family=IBM+Plex+Mono:wght@400;500&family=Noto+Serif+SC:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg-base: #070c16;
-  --bg-surface: #0c1422;
-  --bg-elevated: #111d30;
   --bg-card: #0f1929;
+  --bg-elevated: #111d30;
   --border: #1a2d4a;
   --border-bright: #2a4570;
   --cyan: #00c8f0;
   --cyan-dim: #0080a0;
   --amber: #f59e0b;
-  --amber-dim: #92600a;
   --green: #10d98a;
+  --purple: #a78bfa;
   --red: #f05060;
   --text-primary: #dce8f8;
   --text-secondary: #7090b8;
@@ -29,7 +28,6 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html { scroll-behavior: smooth; font-size: 16px; }
 
 body {
@@ -38,26 +36,25 @@ body {
   font-family: var(--font-body);
   line-height: 1.8;
   overflow-x: hidden;
+  min-height: 100vh;
 }
 
-/* ── Background texture ── */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background-image:
-    radial-gradient(circle at 20% 20%, rgba(0,200,240,0.04) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(245,158,11,0.03) 0%, transparent 50%),
-    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(26,45,74,0.3) 40px, rgba(26,45,74,0.3) 41px),
-    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(26,45,74,0.3) 40px, rgba(26,45,74,0.3) 41px);
+    radial-gradient(circle at 25% 25%, rgba(0,200,240,0.04) 0%, transparent 55%),
+    radial-gradient(circle at 75% 75%, rgba(167,139,250,0.03) 0%, transparent 55%),
+    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(26,45,74,0.28) 40px, rgba(26,45,74,0.28) 41px),
+    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(26,45,74,0.28) 40px, rgba(26,45,74,0.28) 41px);
   pointer-events: none;
   z-index: 0;
 }
 
-/* ── Nav ── */
 nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
+  position: sticky;
+  top: 0;
   z-index: 100;
   background: rgba(7,12,22,0.92);
   backdrop-filter: blur(16px);
@@ -77,2138 +74,397 @@ nav {
   text-transform: uppercase;
 }
 
-.nav-links {
-  display: flex;
-  gap: 0.25rem;
-  list-style: none;
-}
-
-.nav-links a {
+.nav-tagline {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: var(--text-secondary);
-  text-decoration: none;
-  padding: 0.35rem 0.7rem;
-  border-radius: 3px;
-  transition: color 0.2s, background 0.2s;
+  font-size: 0.65rem;
+  color: var(--text-muted);
   letter-spacing: 0.05em;
 }
 
-.nav-links a:hover {
-  color: var(--cyan);
-  background: rgba(0,200,240,0.08);
-}
-
-/* ── Main layout ── */
 main {
   position: relative;
   z-index: 1;
-  max-width: 1100px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 2rem 6rem;
 }
 
-section {
-  padding: 6rem 0 4rem;
+.index-hero {
+  padding: 7rem 0 5rem;
+  max-width: 720px;
 }
 
-/* ── Hero ── */
-#hero {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding-top: 80px;
-}
-
-.hero-tag {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  color: var(--cyan);
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  margin-bottom: 1.5rem;
-  opacity: 0;
-  animation: fadeUp 0.8s ease 0.2s forwards;
-}
-
-.hero-tag::before {
-  content: '// ';
-  color: var(--text-muted);
-}
-
-h1.hero-title {
-  font-family: var(--font-display);
-  font-weight: 300;
-  font-size: clamp(2.4rem, 5vw, 4rem);
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  color: var(--text-primary);
-  margin-bottom: 1rem;
-  opacity: 0;
-  animation: fadeUp 0.8s ease 0.4s forwards;
-}
-
-h1.hero-title em {
-  font-style: italic;
-  color: var(--cyan);
-}
-
-.hero-en {
-  font-family: 'Spectral', serif;
-  font-style: italic;
-  font-weight: 300;
-  font-size: clamp(1rem, 2vw, 1.3rem);
-  color: var(--text-secondary);
-  margin-bottom: 1.5rem;
-  opacity: 0;
-  animation: fadeUp 0.8s ease 0.5s forwards;
-}
-
-.hero-sub {
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  margin-bottom: 3rem;
-  opacity: 0;
-  animation: fadeUp 0.8s ease 0.6s forwards;
-}
-
-.hero-meta {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  opacity: 0;
-  animation: fadeUp 0.8s ease 0.8s forwards;
-}
-
-.hero-author {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.hero-divider {
-  width: 1px;
-  height: 1.5rem;
-  background: var(--border-bright);
-}
-
-.hero-stat {
-  text-align: center;
-}
-
-.hero-stat-num {
-  font-family: var(--font-mono);
-  font-size: 1.6rem;
-  font-weight: 500;
-  color: var(--cyan);
-  display: block;
-  line-height: 1;
-}
-
-.hero-stat-label {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.hero-scroll {
-  position: absolute;
-  bottom: 3rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  opacity: 0;
-  animation: fadeIn 1s ease 1.5s forwards;
-}
-
-.hero-scroll span {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-}
-
-.scroll-line {
-  width: 1px;
-  height: 48px;
-  background: linear-gradient(to bottom, var(--cyan), transparent);
-  animation: pulse 2s ease infinite;
-}
-
-/* ── Section headers ── */
-.section-header {
-  margin-bottom: 3rem;
-}
-
-.section-num {
+.index-hero-tag {
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  color: var(--amber);
+  color: var(--cyan);
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.1s forwards;
 }
 
-h2.section-title {
+.index-hero-tag::before { content: '// '; color: var(--text-muted); }
+
+h1.index-title {
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
-  color: var(--text-primary);
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  line-height: 1.15;
   letter-spacing: -0.02em;
-  line-height: 1.3;
-}
-
-h2.section-title span {
-  color: var(--cyan);
-  font-style: italic;
-}
-
-/* ── Timeline ── */
-.timeline {
-  position: relative;
-  padding-left: 2rem;
-}
-
-.timeline::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0.5rem;
-  bottom: 0.5rem;
-  width: 1px;
-  background: linear-gradient(to bottom, var(--cyan), var(--amber), var(--green));
-}
-
-.timeline-item {
-  position: relative;
-  margin-bottom: 2.5rem;
+  color: var(--text-primary);
+  margin-bottom: 1.2rem;
   opacity: 0;
-  transform: translateX(-20px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  animation: fadeUp 0.7s ease 0.25s forwards;
 }
 
-.timeline-item.visible {
-  opacity: 1;
-  transform: translateX(0);
+h1.index-title em { font-style: italic; color: var(--cyan); }
+
+.index-desc {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.4s forwards;
 }
 
-.timeline-dot {
-  position: absolute;
-  left: -2.4rem;
-  top: 0.4rem;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 2px solid var(--cyan);
-  background: var(--bg-base);
+.index-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.55s forwards;
 }
 
-.timeline-item:nth-child(2) .timeline-dot { border-color: var(--amber); }
-.timeline-item:nth-child(3) .timeline-dot { border-color: var(--green); }
+.index-meta-item {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
 
-.timeline-card {
+.index-meta-item span { color: var(--cyan); margin-right: 0.4rem; }
+
+.articles-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+
+.articles-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 4rem;
+}
+
+.article-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1.5rem;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  border-radius: 10px;
+  padding: 2rem;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.6s ease forwards;
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
 }
 
-.timeline-card:hover {
-  border-color: var(--border-bright);
-  box-shadow: 0 4px 24px rgba(0,200,240,0.06);
+.article-card:nth-child(1) { animation-delay: 0.6s; }
+.article-card:nth-child(2) { animation-delay: 0.75s; }
+
+.article-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
 }
 
-.timeline-period {
+.article-card.featured { border-color: rgba(0,200,240,0.2); }
+.article-card.featured:hover { border-color: rgba(0,200,240,0.5); box-shadow: 0 12px 40px rgba(0,200,240,0.08); }
+
+.article-card.article-new { border-color: rgba(167,139,250,0.2); }
+.article-card.article-new:hover { border-color: rgba(167,139,250,0.5); box-shadow: 0 12px 40px rgba(167,139,250,0.08); }
+
+.article-card::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 60px; height: 60px;
+  background: radial-gradient(circle at top right, rgba(0,200,240,0.06), transparent 70%);
+  border-radius: 0 10px 0 0;
+  pointer-events: none;
+}
+
+.article-card.article-new::after {
+  background: radial-gradient(circle at top right, rgba(167,139,250,0.07), transparent 70%);
+}
+
+.card-series {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.card-number { font-family: var(--font-mono); font-size: 0.62rem; color: var(--cyan); margin-right: 0.5rem; }
+.article-card.article-new .card-number { color: var(--purple); }
+
+.card-title {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  line-height: 1.3;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: 0.75rem;
+}
+
+.card-title em { font-style: italic; color: var(--cyan); }
+.article-card.article-new .card-title em { color: var(--purple); }
+
+.card-desc {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin-bottom: 1.25rem;
+  flex: 1;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  gap: 0.75rem;
+}
+
+.card-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+.card-tag {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  background: rgba(0,200,240,0.07);
+  border: 1px solid rgba(0,200,240,0.15);
   color: var(--cyan);
-  letter-spacing: 0.1em;
+}
+
+.article-card.article-new .card-tag {
+  background: rgba(167,139,250,0.07);
+  border-color: rgba(167,139,250,0.15);
+  color: var(--purple);
+}
+
+.card-read-btn {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--cyan);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: letter-spacing 0.2s;
+}
+
+.article-card.article-new .card-read-btn { color: var(--purple); }
+.article-card:hover .card-read-btn { letter-spacing: 0.05em; }
+
+.card-date {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--text-muted);
   margin-bottom: 0.4rem;
 }
 
-.timeline-item:nth-child(2) .timeline-period { color: var(--amber); }
-.timeline-item:nth-child(3) .timeline-period { color: var(--green); }
-
-.timeline-card h3 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
+.new-badge {
+  position: absolute;
+  top: 1.25rem; right: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 3px;
+  background: rgba(167,139,250,0.15);
+  border: 1px solid rgba(167,139,250,0.3);
+  color: var(--purple);
+  letter-spacing: 0.1em;
 }
 
-.timeline-card p {
-  font-size: 0.9rem;
+.about-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.9s forwards;
+}
+
+.about-block h3 {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--amber);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.about-block p {
+  font-size: 0.85rem;
   color: var(--text-secondary);
   line-height: 1.7;
 }
 
-.tag-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-top: 0.8rem;
-}
-
-.tag {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  padding: 0.2rem 0.6rem;
-  border-radius: 3px;
-  background: rgba(0,200,240,0.08);
-  border: 1px solid rgba(0,200,240,0.2);
-  color: var(--cyan);
-  letter-spacing: 0.05em;
-}
-
-.tag.amber {
-  background: rgba(245,158,11,0.08);
-  border-color: rgba(245,158,11,0.2);
-  color: var(--amber);
-}
-
-.tag.green {
-  background: rgba(16,217,138,0.08);
-  border-color: rgba(16,217,138,0.2);
-  color: var(--green);
-}
-
-/* ── Pipeline ── */
-.pipeline-wrap {
-  overflow-x: auto;
-  margin-bottom: 3rem;
-}
-
-.pipeline {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  min-width: 800px;
-  padding: 1.5rem 0;
-}
-
-.pipe-node {
-  flex: 1;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 1rem 0.75rem;
-  text-align: center;
-  transition: border-color 0.3s, transform 0.3s;
-  cursor: default;
-}
-
-.pipe-node:hover {
-  border-color: var(--cyan);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0,200,240,0.1);
-}
-
-.pipe-node-icon {
-  font-size: 1.2rem;
-  margin-bottom: 0.4rem;
-}
-
-.pipe-node-label {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--cyan);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  display: block;
-  margin-bottom: 0.2rem;
-}
-
-.pipe-node-sub {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-}
-
-.pipe-arrow {
-  flex-shrink: 0;
-  color: var(--border-bright);
-  font-size: 1rem;
-  padding: 0 0.3rem;
-}
-
-/* ── Semantic layer stats ── */
-.semantic-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-top: 1.5rem;
-}
-
-.semantic-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1.5rem;
-}
-
-.semantic-label {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  margin-bottom: 0.8rem;
-  letter-spacing: 0.05em;
-}
-
-.accuracy-bar-wrap {
-  margin-bottom: 0.5rem;
-}
-
-.accuracy-range {
-  font-family: var(--font-mono);
-  font-size: 1.8rem;
-  font-weight: 500;
-  margin-bottom: 0.4rem;
-}
-
-.accuracy-range.low { color: var(--red); }
-.accuracy-range.high { color: var(--green); }
-
-.bar-track {
-  width: 100%;
-  height: 8px;
-  background: var(--bg-elevated);
-  border-radius: 4px;
-  overflow: hidden;
-  margin-top: 0.5rem;
-}
-
-.bar-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  width: 0;
-}
-
-.bar-fill.low { background: linear-gradient(to right, #f05060, #f08060); width: 45%; }
-.bar-fill.high { background: linear-gradient(to right, #10b981, #10d98a); width: 87%; }
-
-.bar-fill.animate { }
-
-/* ── Research tabs ── */
-.tabs {
-  display: flex;
-  gap: 0;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 2rem;
-}
-
-.tab-btn {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  background: none;
-  border: none;
-  padding: 0.8rem 1.5rem;
-  cursor: pointer;
-  letter-spacing: 0.05em;
-  transition: color 0.2s;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-}
-
-.tab-btn.active {
-  color: var(--cyan);
-  border-bottom-color: var(--cyan);
-}
-
-.tab-btn:hover:not(.active) { color: var(--text-secondary); }
-
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
-
-.paper-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 1.5rem;
-}
-
-.paper-table th {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  padding: 0.6rem 1rem;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-}
-
-.paper-table td {
-  padding: 0.8rem 1rem;
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-  border-bottom: 1px solid rgba(26,45,74,0.5);
-}
-
-.paper-table td:first-child {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.paper-table td .venue-tag {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 3px;
-  background: rgba(0,200,240,0.08);
-  border: 1px solid rgba(0,200,240,0.2);
-  color: var(--cyan);
-  margin-left: 0.5rem;
-}
-
-.challenge-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  margin-top: 1rem;
-}
-
-.challenge-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.8rem;
-  padding: 0.8rem 1rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 0.88rem;
-}
-
-.challenge-item::before {
-  content: '—';
-  color: var(--amber);
-  font-family: var(--font-mono);
-  flex-shrink: 0;
-}
-
-.agent-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-}
-
-.agent-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1.2rem;
-  transition: border-color 0.3s;
-}
-
-.agent-card:hover { border-color: var(--border-bright); }
-
-.agent-card h4 {
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  color: var(--cyan);
-  margin-bottom: 0.5rem;
-}
-
-.agent-card p {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-/* ── Ecosystem grid ── */
-.eco-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-}
-
-.eco-category {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1.5rem;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.5s ease, transform 0.5s ease, border-color 0.3s;
-}
-
-.eco-category.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.eco-category:hover { border-color: var(--border-bright); }
-
-.eco-cat-label {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--amber);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  margin-bottom: 1rem;
-}
-
-.eco-items {
+.about-links {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
-.eco-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 0.75rem;
-  background: var(--bg-elevated);
-  border-radius: 4px;
-  font-size: 0.85rem;
-}
-
-.eco-item-name {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.eco-item-meta {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--text-muted);
-}
-
-.license-badge {
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 3px;
-}
-
-.license-mit { background: rgba(16,217,138,0.12); color: var(--green); }
-.license-apache { background: rgba(0,200,240,0.08); color: var(--cyan); }
-.license-cc { background: rgba(245,158,11,0.1); color: var(--amber); }
-
-/* ── Accuracy cliff ── */
-.cliff-chart {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-  margin: 2rem 0;
-}
-
-.cliff-row {
-  display: grid;
-  grid-template-columns: 220px 1fr 1fr;
-  align-items: center;
-  gap: 1rem;
-  opacity: 0;
-  transform: translateX(-20px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.cliff-row.visible {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.cliff-label {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.cliff-label strong {
-  display: block;
-  color: var(--text-primary);
-  font-size: 0.9rem;
-}
-
-.cliff-label small {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--text-muted);
-}
-
-.cliff-bar-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.cliff-bar-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.cliff-model-tag {
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  color: var(--text-muted);
-  width: 70px;
-  flex-shrink: 0;
-  text-align: right;
-}
-
-.cliff-track {
-  flex: 1;
-  height: 20px;
-  background: var(--bg-elevated);
-  border-radius: 3px;
-  overflow: hidden;
-  position: relative;
-}
-
-.cliff-fill {
-  height: 100%;
-  border-radius: 3px;
-  position: absolute;
-  left: 0;
-  top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 0.5rem;
-  transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  width: 0 !important;
-}
-
-.cliff-fill.animate {
-  width: var(--target-w) !important;
-}
-
-.cliff-pct {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: rgba(255,255,255,0.9);
-  font-weight: 500;
-}
-
-.cliff-fill-academic { background: linear-gradient(to right, #10b981, #10d98a); }
-.cliff-fill-mid { background: linear-gradient(to right, var(--amber), #f0c060); }
-.cliff-fill-enterprise { background: linear-gradient(to right, #f05060, #f07050); }
-
-.cliff-annotation {
-  background: rgba(240,80,96,0.08);
-  border: 1px solid rgba(240,80,96,0.3);
-  border-radius: 8px;
-  padding: 1rem 1.5rem;
-  margin-top: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.cliff-annotation-icon {
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
-.cliff-annotation p {
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-}
-
-.cliff-annotation strong { color: var(--red); }
-
-/* ── Challenge cards ── */
-.challenge-cards {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.challenge-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1.25rem;
-  transition: border-color 0.3s, transform 0.3s;
-}
-
-.challenge-card:hover {
-  border-color: var(--border-bright);
-  transform: translateY(-2px);
-}
-
-.challenge-card-icon {
-  font-size: 1.5rem;
-  margin-bottom: 0.6rem;
-}
-
-.challenge-card h4 {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.4rem;
-  color: var(--text-primary);
-}
-
-.challenge-card p {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-/* ── Trends ── */
-.trends-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-top: 1rem;
-}
-
-.trend-col {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1.5rem;
-}
-
-.trend-col-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.2rem;
-  padding-bottom: 0.8rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.trend-col-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.trend-col-dot.near { background: var(--cyan); }
-.trend-col-dot.mid { background: var(--amber); }
-
-.trend-col-title {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  color: var(--text-secondary);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.trend-item {
-  display: flex;
-  gap: 0.8rem;
-  padding: 0.7rem 0;
-  border-bottom: 1px solid rgba(26,45,74,0.4);
-}
-
-.trend-item:last-child { border-bottom: none; }
-
-.trend-num {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  width: 1.2rem;
-  flex-shrink: 0;
-  padding-top: 0.1rem;
-}
-
-.trend-content h5 {
-  font-size: 0.88rem;
-  color: var(--text-primary);
-  margin-bottom: 0.2rem;
-}
-
-.trend-content p {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  line-height: 1.5;
-}
-
-/* ── Conclusion ── */
-.conclusion-box {
-  background: linear-gradient(135deg, rgba(0,200,240,0.05), rgba(245,158,11,0.03));
-  border: 1px solid var(--border-bright);
-  border-radius: 12px;
-  padding: 2.5rem;
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 2rem;
-}
-
-.conclusion-box::before {
-  content: '"';
-  position: absolute;
-  top: -1rem;
-  left: 1.5rem;
-  font-size: 8rem;
-  color: rgba(0,200,240,0.06);
-  font-family: var(--font-display);
-  line-height: 1;
-  pointer-events: none;
-}
-
-.conclusion-quote {
-  font-family: var(--font-display);
-  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
-  font-style: italic;
-  font-weight: 300;
-  color: var(--text-primary);
-  line-height: 1.6;
-  margin-bottom: 2rem;
-  position: relative;
-  z-index: 1;
-}
-
-.conclusion-insights {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  position: relative;
-  z-index: 1;
-}
-
-.insight-item {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-}
-
-.insight-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(0,200,240,0.1);
-  border: 1px solid var(--cyan-dim);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  flex-shrink: 0;
-}
-
-.insight-text {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-.insight-text strong { color: var(--cyan); }
-
-.stack-rec {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-top: 2rem;
-}
-
-.stack-rec-label {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--amber);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-bottom: 1rem;
-}
-
-.stack-items {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.stack-item {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-bright);
-  border-radius: 6px;
-  padding: 0.6rem 1rem;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  color: var(--text-primary);
-}
-
-.stack-plus {
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 1rem;
-}
-
-/* ── Share button ── */
-.share-btn {
+.about-link {
   font-family: var(--font-mono);
   font-size: 0.72rem;
   color: var(--cyan);
-  background: rgba(0,200,240,0.08);
-  border: 1px solid rgba(0,200,240,0.3);
-  border-radius: 4px;
-  padding: 0.4rem 1rem;
-  cursor: pointer;
-  letter-spacing: 0.08em;
-  transition: background 0.2s, transform 0.1s;
+  text-decoration: none;
+  transition: color 0.2s;
 }
 
-.share-btn:hover { background: rgba(0,200,240,0.15); }
-.share-btn:active { transform: scale(0.97); }
+.about-link:hover { color: var(--text-primary); }
 
-/* ── Footer ── */
 footer {
   border-top: 1px solid var(--border);
-  padding: 3rem 2rem;
+  padding: 2.5rem 2rem;
   text-align: center;
   position: relative;
   z-index: 1;
+  margin-top: 3rem;
 }
 
 footer p {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: var(--text-muted);
-  letter-spacing: 0.05em;
 }
 
-footer p + p {
-  margin-top: 0.4rem;
-}
-
-/* ── Animations ── */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(18px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-
-.reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ── Nav right group ── */
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-/* ── Hamburger toggle ── */
-.nav-toggle {
-  display: none;
-  flex-direction: column;
-  justify-content: center;
-  gap: 5px;
-  width: 40px;
-  height: 40px;
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  cursor: pointer;
-  padding: 8px;
-  flex-shrink: 0;
-}
-
-.nav-toggle span {
-  display: block;
-  width: 100%;
-  height: 1px;
-  background: var(--text-secondary);
-  transition: transform 0.3s, opacity 0.3s;
-}
-
-.nav-toggle.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-.nav-toggle.open span:nth-child(2) { opacity: 0; }
-.nav-toggle.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
-
-/* ── Mobile nav drawer ── */
-.nav-mobile {
-  display: none;
-  position: fixed;
-  top: 56px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 99;
-  background: rgba(7,12,22,0.98);
-  backdrop-filter: blur(20px);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease;
-}
-
-.nav-mobile.open {
-  opacity: 1;
-  pointer-events: all;
-}
-
-.nav-mobile-inner {
-  display: flex;
-  flex-direction: column;
-  padding: 2rem 1.5rem;
-  gap: 0.25rem;
-}
-
-.nav-mobile-inner a {
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  color: var(--text-secondary);
-  text-decoration: none;
-  padding: 0.9rem 0;
-  border-bottom: 1px solid var(--border);
-  letter-spacing: 0.05em;
-  transition: color 0.2s;
-}
-
-.nav-mobile-inner a:hover { color: var(--cyan); }
-
-/* ── Table scroll container ── */
-.table-scroll {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  margin-bottom: 1.5rem;
-}
-
-/* ── Cliff chart model header ── */
-.cliff-model-header {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-/* ── Responsive: 768px ── */
-@media (max-width: 768px) {
-  /* Nav */
+@media (max-width: 700px) {
   nav { padding: 0 1rem; }
-  .nav-links { display: none; }
-  .nav-toggle { display: flex; }
-  .nav-mobile { display: block; }
-  .share-btn { font-size: 0.65rem; padding: 0.35rem 0.7rem; }
-
-  /* Layout */
-  main { padding: 0 1rem; }
-  section { padding: 4rem 0 3rem; }
-
-  /* Hero */
-  #hero { min-height: 95vh; padding-top: 70px; }
-  .hero-meta {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 1rem;
-    align-items: start;
-  }
-  .hero-divider { display: none; }
-  .hero-author {
-    grid-column: 1 / -1;
-    font-size: 0.72rem;
-  }
-  .hero-stat-num { font-size: 1.3rem; }
-  .hero-sub { font-size: 0.75rem; word-break: break-word; }
-
-  /* Grids → single column */
-  .semantic-grid { grid-template-columns: 1fr; }
-  .eco-grid { grid-template-columns: 1fr; }
-  .challenge-cards { grid-template-columns: 1fr; }
-  .trends-grid { grid-template-columns: 1fr; }
-  .agent-cards { grid-template-columns: 1fr; }
-
-  /* Eco inner 3-col grid */
-  .eco-items[style*="grid"] {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* Stack items */
-  .stack-items { flex-direction: column; align-items: flex-start; }
-
-  /* Conclusion quote */
-  .conclusion-quote { font-size: 1rem; }
-  .conclusion-box::before { font-size: 5rem; top: -0.5rem; }
-
-  /* Section header */
-  .section-header { margin-bottom: 2rem; }
+  .nav-tagline { display: none; }
+  main { padding: 0 1rem 4rem; }
+  .index-hero { padding: 4rem 0 3rem; }
+  .articles-grid { grid-template-columns: 1fr; }
+  .about-section { grid-template-columns: 1fr; gap: 1.5rem; }
+  .card-footer { flex-direction: column; align-items: flex-start; }
 }
-
-/* ── Responsive: 640px – pipeline & tabs ── */
-@media (max-width: 640px) {
-  /* Pipeline: vertical stack */
-  .pipeline {
-    flex-direction: column;
-    min-width: unset;
-    gap: 0;
-    padding: 0;
-  }
-  .pipe-node {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    text-align: left;
-    padding: 0.8rem 1rem;
-    border-radius: 6px;
-    flex-direction: row;
-  }
-  .pipe-node-icon {
-    font-size: 1.2rem;
-    margin: 0;
-    flex-shrink: 0;
-  }
-  .pipe-node-label { display: inline; margin: 0 0.25rem 0 0; }
-  .pipe-node-sub { display: inline; }
-  .pipe-arrow {
-    text-align: center;
-    padding: 0.1rem 0;
-    transform: rotate(90deg);
-    display: block;
-    font-size: 0.9rem;
-    color: var(--text-muted);
-  }
-
-  /* Tabs: scrollable row */
-  .tabs {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    flex-wrap: nowrap;
-    gap: 0;
-    scrollbar-width: none;
-  }
-  .tabs::-webkit-scrollbar { display: none; }
-  .tab-btn {
-    white-space: nowrap;
-    padding: 0.8rem 1.2rem;
-    font-size: 0.72rem;
-    min-width: 44px;
-  }
-
-  /* Cliff chart: label full-width, bars below side by side */
-  .cliff-header-row { display: none; }
-  .cliff-row {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    padding: 1rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    margin-bottom: 0.75rem;
-  }
-  .cliff-label { margin-bottom: 0.2rem; }
-  .cliff-label strong { font-size: 0.92rem; }
-  .cliff-label small { font-size: 0.72rem; }
-  .cliff-row .cliff-bar-group {
-    display: grid;
-    grid-template-columns: 72px 1fr;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .cliff-row .cliff-bar-group::before {
-    content: attr(data-model);
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    color: var(--text-muted);
-    text-align: right;
-    white-space: nowrap;
-  }
-  .cliff-bar-item { flex: 1; }
-  .cliff-track { height: 22px; }
-  .cliff-pct { font-size: 0.68rem; }
-
-  /* Paper table minimum width */
-  .paper-table { min-width: 520px; }
-
-  /* Challenge cards: smaller padding */
-  .challenge-card { padding: 1rem; }
-  .conclusion-insights { gap: 0.75rem; }
-
-  /* Fonts: minimum legible sizes */
-  .section-num { font-size: 0.65rem; }
-  .eco-cat-label { font-size: 0.62rem; }
-  .eco-item { padding: 0.5rem 0.6rem; font-size: 0.82rem; }
-}
-
-/* ── Responsive: 380px – very small phones ── */
-@media (max-width: 380px) {
-  main { padding: 0 0.75rem; }
-  h1.hero-title { font-size: 2rem; }
-  .hero-meta { grid-template-columns: 1fr 1fr; }
-  .hero-stat:last-child { grid-column: 1 / -1; }
-  .nav-logo { font-size: 0.65rem; }
-}
-
-/* ── Code snippet ── */
-.code-block {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 1rem 1.25rem;
-  color: var(--text-secondary);
-  overflow-x: auto;
-  margin: 1rem 0;
-  line-height: 1.6;
-}
-
-.code-block .kw { color: var(--cyan); }
-.code-block .str { color: var(--green); }
-.code-block .cm { color: var(--text-muted); }
-
-/* ── Divider ── */
-.sec-divider {
-  border: none;
-  border-top: 1px solid var(--border);
-  margin: 0;
-}
-
-/* ── Tooltip ── */
-[data-tip] {
-  position: relative;
-  cursor: help;
-  border-bottom: 1px dashed var(--border-bright);
-}
-
 </style>
 </head>
 <body>
 
-<!-- Navigation -->
 <nav>
   <div class="nav-logo">DA·Agent·Survey</div>
-  <ul class="nav-links">
-    <li><a href="#evolution">演进脉络</a></li>
-    <li><a href="#architecture">核心架构</a></li>
-    <li><a href="#research">研究方向</a></li>
-    <li><a href="#ecosystem">开源生态</a></li>
-    <li><a href="#challenges">关键挑战</a></li>
-    <li><a href="#trends">趋势判断</a></li>
-    <li><a href="#conclusion">结论</a></li>
-  </ul>
-  <div class="nav-right">
-    <button class="share-btn" onclick="shareReport()">↗ 分享</button>
-    <button class="nav-toggle" onclick="toggleMenu()" aria-label="菜单">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
+  <div class="nav-tagline">数据分析 Agent 调研系列 · Kira Chen</div>
 </nav>
-
-<!-- Mobile menu -->
-<div class="nav-mobile" id="navMobile">
-  <div class="nav-mobile-inner">
-    <a href="#evolution" onclick="closeMenu()">01 · 演进脉络</a>
-    <a href="#architecture" onclick="closeMenu()">02 · 核心架构</a>
-    <a href="#research" onclick="closeMenu()">03 · 研究方向</a>
-    <a href="#ecosystem" onclick="closeMenu()">04 · 开源生态</a>
-    <a href="#challenges" onclick="closeMenu()">05 · 关键挑战</a>
-    <a href="#trends" onclick="closeMenu()">06 · 趋势判断</a>
-    <a href="#conclusion" onclick="closeMenu()">07 · 结论</a>
-  </div>
-</div>
 
 <main>
 
-<!-- Hero -->
-<section id="hero">
-  <div class="hero-tag">综合调研报告 · 2026年4月</div>
-  <h1 class="hero-title">数据分析 <em>Agent</em><br>领域综述</h1>
-  <div class="hero-en">A Comprehensive Survey of Data Analysis Agents (2024–2026)</div>
-  <div class="hero-sub">// 覆盖 Text-to-SQL · 自主 EDA · 开源生态 · 核心挑战</div>
-  <div class="hero-meta">
-    <div class="hero-author">由 Kira Chen 整理 · 2026年4月</div>
-    <div class="hero-divider"></div>
-    <div class="hero-stat">
-      <span class="hero-stat-num">3</span>
-      <span class="hero-stat-label">发展阶段</span>
-    </div>
-    <div class="hero-divider"></div>
-    <div class="hero-stat">
-      <span class="hero-stat-num">86.6%</span>
-      <span class="hero-stat-label">学术 SOTA</span>
-    </div>
-    <div class="hero-divider"></div>
-    <div class="hero-stat">
-      <span class="hero-stat-num">10.1%</span>
-      <span class="hero-stat-label">真实企业</span>
-    </div>
-  </div>
-  <div class="hero-scroll">
-    <span>Scroll</span>
-    <div class="scroll-line"></div>
-  </div>
-</section>
-
-<hr class="sec-divider">
-
-<!-- Section 1: Evolution -->
-<section id="evolution">
-  <div class="section-header reveal">
-    <div class="section-num">01 / 领域演进</div>
-    <h2 class="section-title">三个<span>发展阶段</span></h2>
-  </div>
-
-  <div class="timeline">
-    <div class="timeline-item">
-      <div class="timeline-dot"></div>
-      <div class="timeline-card">
-        <div class="timeline-period">2020 — 2022</div>
-        <h3>阶段一：静态 NL2SQL</h3>
-        <p>Parser→SQL 的单一模型路径，高度依赖人工标注数据。学术准确率看起来不错，一旦碰到真实数据库就原形毕露——字段名稍有变化、表结构稍复杂，模型就失效。</p>
-        <div class="tag-row">
-          <span class="tag">Spider 1.0 基线</span>
-          <span class="tag">T5 / BART fine-tuning</span>
-          <span class="tag amber">无上下文理解</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="timeline-item">
-      <div class="timeline-dot"></div>
-      <div class="timeline-card">
-        <div class="timeline-period">2022 — 2024</div>
-        <h3>阶段二：LLM + Prompt Engineering</h3>
-        <p>GPT-4 的出现让 few-shot + CoT 成为主流范式。RAG 开始引入以增强上下文理解。Spider 1.0 准确率突破 85%，但这只是学术的繁荣——真实企业数据库场景的鸿沟开始显现。</p>
-        <div class="tag-row">
-          <span class="tag amber">DIN-SQL</span>
-          <span class="tag amber">DAIL-SQL</span>
-          <span class="tag amber">MAC-SQL</span>
-          <span class="tag">GPT-4 few-shot + CoT</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="timeline-item">
-      <div class="timeline-dot"></div>
-      <div class="timeline-card">
-        <div class="timeline-period">2024 — 至今</div>
-        <h3>阶段三：Compound AI / Multi-Agent</h3>
-        <p>单一 LLM 遇到了天花板。业界转向多专用 Agent 协作——意图解析、Schema 链接、规划、代码生成、执行验证各司其职。目标是 L4 自主化：端到端完成整个数据工程项目，人类只做决策验收。</p>
-        <div class="tag-row">
-          <span class="tag green">Databricks Genie</span>
-          <span class="tag green">Vanna v2</span>
-          <span class="tag green">DS-STAR</span>
-          <span class="tag green">AutoKaggle</span>
-          <span class="tag amber">L4 Autonomy 目标</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<hr class="sec-divider">
-
-<!-- Section 2: Architecture -->
-<section id="architecture">
-  <div class="section-header reveal">
-    <div class="section-num">02 / 技术架构</div>
-    <h2 class="section-title">Compound AI<span> 流水线</span></h2>
-  </div>
-
-  <div class="pipeline-wrap reveal">
-    <div class="pipeline">
-      <div class="pipe-node">
-        <div class="pipe-node-icon">💬</div>
-        <span class="pipe-node-label">NL Query</span>
-        <span class="pipe-node-sub">自然语言输入</span>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-node">
-        <div class="pipe-node-icon">🔍</div>
-        <span class="pipe-node-label">Intent Parser</span>
-        <span class="pipe-node-sub">意图识别</span>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-node">
-        <div class="pipe-node-icon">🗂️</div>
-        <span class="pipe-node-label">Schema Linker</span>
-        <span class="pipe-node-sub">表/列映射</span>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-node">
-        <div class="pipe-node-icon">📋</div>
-        <span class="pipe-node-label">Planner</span>
-        <span class="pipe-node-sub">多步分解</span>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-node">
-        <div class="pipe-node-icon">⚡</div>
-        <span class="pipe-node-label">SQL Generator</span>
-        <span class="pipe-node-sub">代码生成</span>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-node">
-        <div class="pipe-node-icon">✅</div>
-        <span class="pipe-node-label">Executor</span>
-        <span class="pipe-node-sub">执行+验证</span>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-node">
-        <div class="pipe-node-icon">📊</div>
-        <span class="pipe-node-label">Formatter</span>
-        <span class="pipe-node-sub">结果呈现</span>
-      </div>
+  <div class="index-hero">
+    <div class="index-hero-tag">调研系列 · 持续更新</div>
+    <h1 class="index-title">数据分析 <em>Agent</em><br>调研系列</h1>
+    <p class="index-desc">
+      覆盖 Text-to-SQL、Compound AI 架构、Ontology 建模、开源生态、企业落地等核心议题。<br>
+      由 Kira Chen 整理，聚焦 2024–2026 年最新研究与工业实践。
+    </p>
+    <div class="index-meta">
+      <div class="index-meta-item"><span>2</span> 篇文章</div>
+      <div class="index-meta-item"><span>2026.04</span> 最后更新</div>
+      <div class="index-meta-item"><span>GitHub Pages</span> 公开发布</div>
     </div>
   </div>
 
-  <div class="section-header reveal" style="margin-top: 3rem;">
-    <div class="section-num">语义层的关键作用</div>
-    <h2 class="section-title" style="font-size: 1.6rem;">Semantic Layer — <span>防幻觉核心</span></h2>
+  <div class="articles-label">// 文章列表</div>
+
+  <div class="articles-grid">
+
+    <a href="survey.html" class="article-card featured">
+      <div class="card-series"><span class="card-number">01</span>综合综述</div>
+      <div class="card-date">2026年4月 · 首发</div>
+      <h2 class="card-title">数据分析 <em>Agent</em> 领域综述<br>（2024–2026）</h2>
+      <p class="card-desc">
+        覆盖 Text-to-SQL 演进三阶段、Compound AI 流水线、语义层防幻觉机制、开源生态全景、准确率断崖（Spider 2.0 真实企业场景 10.1%），以及 L4 自主化趋势研判。
+      </p>
+      <div class="card-footer">
+        <div class="card-tags">
+          <span class="card-tag">Text-to-SQL</span>
+          <span class="card-tag">Compound AI</span>
+          <span class="card-tag">Semantic Layer</span>
+          <span class="card-tag">开源生态</span>
+        </div>
+        <div class="card-read-btn">阅读 →</div>
+      </div>
+    </a>
+
+    <a href="ontology.html" class="article-card article-new">
+      <div class="new-badge">NEW</div>
+      <div class="card-series"><span class="card-number">02</span>专项深度</div>
+      <div class="card-date">2026年4月 · 新增</div>
+      <h2 class="card-title"><em>Ontology</em> 建模在<br>Data Agent 领域的深入调研</h2>
+      <p class="card-desc">
+        学术研究（Agent-OM、Neurosymbolic 约束推理）、开源项目（WrenAI、dbt MetricFlow、OrionBelt）、商业产品（Databricks/Snowflake/Fabric/Timbr）全景，附业界共识定量证据。
+      </p>
+      <div class="card-footer">
+        <div class="card-tags">
+          <span class="card-tag">Ontology</span>
+          <span class="card-tag">Semantic Layer</span>
+          <span class="card-tag">Agent-OM</span>
+          <span class="card-tag">Gartner 共识</span>
+        </div>
+        <div class="card-read-btn">阅读 →</div>
+      </div>
+    </a>
+
   </div>
 
-  <p class="reveal" style="font-size: 0.92rem; color: var(--text-secondary); margin-bottom: 1.5rem; max-width: 720px;">
-    语义层（Metric Views）预先定义"销售额如何计算、哪些订单算已完成"等业务逻辑。LLM 从语义层读取确定性的规则，而不是自行推断，将准确率从 40–50% 直接提升到 85–90%。
-  </p>
-
-  <div class="semantic-grid reveal">
-    <div class="semantic-card">
-      <div class="semantic-label">// 无语义层 — LLM 自行推断</div>
-      <div class="accuracy-range low">40 – 50%</div>
-      <div class="bar-track">
-        <div class="bar-fill low" id="bar-low"></div>
-      </div>
-      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.8rem;">LLM 基于常识猜测 revenue 计算方式 → 度量不一致，幻觉频发</p>
+  <div class="about-section">
+    <div class="about-block">
+      <h3>关于这个系列</h3>
+      <p>
+        本系列由 Kira Chen（TrickleAI/HappyCapy CTO）整理，基于 arXiv 论文、GitHub 开源项目、Gartner 报告及工业界产品文档综合分析，聚焦 Data Agent 领域的技术前沿与工程落地。
+      </p>
     </div>
-    <div class="semantic-card" style="border-color: rgba(16,217,138,0.2);">
-      <div class="semantic-label">// 有 Metric Views — 确定性逻辑</div>
-      <div class="accuracy-range high">85 – 90%</div>
-      <div class="bar-track">
-        <div class="bar-fill high" id="bar-high"></div>
-      </div>
-      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.8rem;">从预定义语义层读取度量逻辑 → 单一事实来源，跨工具一致</p>
-    </div>
-  </div>
-</section>
-
-<hr class="sec-divider">
-
-<!-- Section 3: Research -->
-<section id="research">
-  <div class="section-header reveal">
-    <div class="section-num">03 / 研究方向</div>
-    <h2 class="section-title">三条<span>主线</span></h2>
-  </div>
-
-  <div class="tabs reveal">
-    <button class="tab-btn active" onclick="switchTab('text2sql')">Text-to-SQL</button>
-    <button class="tab-btn" onclick="switchTab('eda')">自主 EDA Agent</button>
-    <button class="tab-btn" onclick="switchTab('code')">Code Interpreter</button>
-  </div>
-
-  <div id="tab-text2sql" class="tab-panel active">
-    <div class="table-scroll">
-    <table class="paper-table">
-      <thead>
-        <tr>
-          <th>论文 / 系统</th>
-          <th>发表</th>
-          <th>核心贡献</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>MAC-SQL <span class="venue-tag">EMNLP 2024</span></td>
-          <td style="font-family: var(--font-mono); font-size: 0.75rem;">2024</td>
-          <td>多 Agent 协作：Decomposer + Selector + Refiner 三层分工</td>
-        </tr>
-        <tr>
-          <td>DAIL-SQL <span class="venue-tag">VLDB 2024</span></td>
-          <td style="font-family: var(--font-mono); font-size: 0.75rem;">2024</td>
-          <td>Few-shot 示例选择策略，Spider 1.0 SOTA，奠定 prompt 工程范式</td>
-        </tr>
-        <tr>
-          <td>LinkAlign <span class="venue-tag">EMNLP 2025</span></td>
-          <td style="font-family: var(--font-mono); font-size: 0.75rem;">2025</td>
-          <td>大规模 Schema Linking，query rewriting + response filtering 减少错误</td>
-        </tr>
-        <tr>
-          <td>DBCopilot <span class="venue-tag">2025</span></td>
-          <td style="font-family: var(--font-mono); font-size: 0.75rem;">2025</td>
-          <td>Schema Routing，支持千表级超大数据库的 NL 查询</td>
-        </tr>
-        <tr>
-          <td>E-SQL <span class="venue-tag">2024</span></td>
-          <td style="font-family: var(--font-mono); font-size: 0.75rem;">2024</td>
-          <td>Direct Schema 链接，减少中间步骤，降低 latency</td>
-        </tr>
-      </tbody>
-    </table>
-    </div><!-- /table-scroll -->
-    <div class="challenge-list">
-      <div class="challenge-item"><span><strong style="color: var(--text-primary);">Schema Linking（大型 DB）</strong> — 10,000+ 张表如何快速定位相关表？两阶段 Recall（向量粗筛 + LLM 精排）是当前主流方案</span></div>
-      <div class="challenge-item"><span><strong style="color: var(--text-primary);">跨 SQL 方言</strong> — BigQuery ARRAY_AGG vs Snowflake LISTAGG vs MySQL GROUP_CONCAT，方言异构是真实部署的拦路虎</span></div>
-      <div class="challenge-item"><span><strong style="color: var(--text-primary);">多轮对话一致性</strong> — "它的上个月" 中 "它" 指什么？上下文依赖的消歧至今缺少通用解法</span></div>
-    </div>
-  </div>
-
-  <div id="tab-eda" class="tab-panel">
-    <div class="agent-cards">
-      <div class="agent-card">
-        <h4>AutoKaggle</h4>
-        <p>5 个专用 Agent 流水线：<br>Reader → Planner → Developer → Reviewer → Summarizer<br><br>面向 Kaggle 数据竞赛，自动完成特征工程到模型训练。2024 年发表，目前是 multi-agent EDA 的基准参照。</p>
-      </div>
-      <div class="agent-card">
-        <h4>DS-STAR</h4>
-        <p>核心创新：引入 LLM-as-Judge 验证层，不仅依赖执行反馈。<br><br>在 DABStep（450 任务, 7 个数据文件）和 KramaBench（6 领域, 1556 文件）上达到 SOTA，2025 年发表。</p>
-      </div>
-      <div class="agent-card">
-        <h4>ADP-MA</h4>
-        <p>Autonomous Data Processing via Meta-Agents。<br><br>动态确定工作流阶段（vs AutoKaggle 预定义顺序），更灵活，支持超出预测建模的广义数据处理任务。2026 年初发表。</p>
-      </div>
-    </div>
-    <div style="margin-top: 1.5rem; padding: 1rem 1.25rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;">
-      <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--amber); margin-bottom: 0.5rem;">自主化等级</div>
-      <p style="font-size: 0.88rem; color: var(--text-secondary);">研究目标已明确指向 <strong style="color: var(--text-primary);">L4 自主化</strong>：系统可自编排多阶段 pipeline，人类只提目标不管过程。当前大部分产品在 L1–L3 之间（辅助单个孤立任务）。</p>
-    </div>
-  </div>
-
-  <div id="tab-code" class="tab-panel">
-    <div class="agent-cards">
-      <div class="agent-card">
-        <h4>LightVA</h4>
-        <p>生成 Python / SQL → 沙箱执行 → 验证结果 → 自我修正循环。强制通过执行反馈来保证正确性，而不是单次生成祈祷能跑。</p>
-      </div>
-      <div class="agent-card">
-        <h4>Jupybara</h4>
-        <p>规划 Agent + 审查 Agent 分离设计。由独立审查 Agent 对生成代码进行迭代验证，降低未检测到的幻觉概率。</p>
-      </div>
-      <div class="agent-card">
-        <h4>Google BigQuery Code Interpreter</h4>
-        <p>2025 年 GA，集成在 BigQuery Studio。NL → Python → 图表，面向业务用户，复杂分析问题（如"做客户分群"）直接生成可执行 Python 代码。</p>
-      </div>
-    </div>
-    <div class="challenge-list" style="margin-top: 1.5rem;">
-      <div class="challenge-item"><span><strong style="color: var(--text-primary);">意图理解失误</strong> — LLM 生成的代码逻辑上正确，但功能上不符合用户真实需求</span></div>
-      <div class="challenge-item"><span><strong style="color: var(--text-primary);">包名 / API 幻觉</strong> — 模型发明不存在的 Python package 或数据库字段名，沙箱执行是目前唯一可靠的检测手段</span></div>
-    </div>
-  </div>
-</section>
-
-<hr class="sec-divider">
-
-<!-- Section 4: Ecosystem -->
-<section id="ecosystem">
-  <div class="section-header reveal">
-    <div class="section-num">04 / 开源生态</div>
-    <h2 class="section-title">工具<span>全景图</span></h2>
-  </div>
-
-  <div class="eco-grid">
-    <div class="eco-category">
-      <div class="eco-cat-label">Text-to-SQL 框架</div>
-      <div class="eco-items">
-        <div class="eco-item">
-          <span class="eco-item-name">Vanna.ai</span>
-          <span class="license-badge license-mit">MIT</span>
-        </div>
-        <div class="eco-item">
-          <span class="eco-item-name">Dataherald</span>
-          <span class="license-badge license-apache">Apache-2.0</span>
-        </div>
-        <div class="eco-item">
-          <span class="eco-item-name">SQLChat</span>
-          <span class="license-badge license-apache">Apache-2.0</span>
-        </div>
-        <div class="eco-item">
-          <span class="eco-item-name">DSPY</span>
-          <span class="license-badge license-mit">MIT</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="eco-category">
-      <div class="eco-cat-label">专用 SQL 模型</div>
-      <div class="eco-items">
-        <div class="eco-item">
-          <span class="eco-item-name">Defog SQLCoder-7B</span>
-          <span class="eco-item-meta">Llama3 base</span>
-        </div>
-        <div class="eco-item">
-          <span class="eco-item-name">Defog SQLCoder-34B</span>
-          <span class="eco-item-meta">Llama3 base</span>
-        </div>
-        <div class="eco-item">
-          <span class="eco-item-name">Defog SQLCoder-70B</span>
-          <span class="eco-item-meta">复杂 JOIN 超越 GPT-4</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="eco-category">
-      <div class="eco-cat-label">Agent 编排框架</div>
-      <div class="eco-items">
-        <div class="eco-item">
-          <span class="eco-item-name">LangChain SQL Agent</span>
-          <span class="license-badge license-mit">MIT</span>
-        </div>
-        <div class="eco-item">
-          <span class="eco-item-name">LlamaIndex</span>
-          <span class="license-badge license-mit">MIT</span>
-        </div>
-        <div class="eco-item">
-          <span class="eco-item-name">CrewAI</span>
-          <span class="license-badge license-mit">MIT</span>
-        </div>
-        <div class="eco-item">
-          <span class="eco-item-name">AutoGen (Microsoft)</span>
-          <span class="license-badge license-mit">MIT</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="eco-category">
-      <div class="eco-cat-label">评测基准</div>
-      <div class="eco-items">
-        <div class="eco-item">
-          <span class="eco-item-name">Spider 1.0 / 2.0</span>
-          <span class="eco-item-meta">YaleNLP · ICLR 2025 Oral</span>
-        </div>
-        <div class="eco-item">
-          <span class="eco-item-name">BIRD</span>
-          <span class="eco-item-meta">香港大学 · 12,000+ 样本</span>
-        </div>
-        <div class="eco-item">
-          <span class="eco-item-name">DABStep</span>
-          <span class="eco-item-meta">450 任务 · 7 文件</span>
-        </div>
-        <div class="eco-item">
-          <span class="eco-item-name">ELT-Bench</span>
-          <span class="eco-item-meta">端到端 ELT pipeline 评测</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="eco-category" style="grid-column: 1 / -1;">
-      <div class="eco-cat-label">语义层 / Semantic Layer</div>
-      <div class="eco-items" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
-        <div class="eco-item">
-          <span class="eco-item-name">Unity Catalog Business Semantics</span>
-          <span class="license-badge license-apache">开源</span>
-        </div>
-        <div class="eco-item">
-          <span class="eco-item-name">dbt Semantic Layer (MetricFlow)</span>
-          <span class="license-badge license-apache">Apache-2.0</span>
-        </div>
-        <div class="eco-item">
-          <span class="eco-item-name">Cube.dev</span>
-          <span class="license-badge license-apache">Apache-2.0</span>
-        </div>
+    <div class="about-block">
+      <h3>相关链接</h3>
+      <div class="about-links">
+        <a href="https://github.com/warren-wupeng/da-agent-survey" class="about-link" target="_blank">↗ GitHub 仓库</a>
+        <a href="survey.html" class="about-link">→ 综述文章（第01篇）</a>
+        <a href="ontology.html" class="about-link">→ Ontology 专项报告（第02篇）</a>
       </div>
     </div>
   </div>
-</section>
-
-<hr class="sec-divider">
-
-<!-- Section 5: Challenges -->
-<section id="challenges">
-  <div class="section-header reveal">
-    <div class="section-num">05 / 关键挑战</div>
-    <h2 class="section-title">准确率<span>断崖</span></h2>
-  </div>
-
-  <p class="reveal" style="font-size: 0.92rem; color: var(--text-secondary); margin-bottom: 2.5rem; max-width: 720px;">
-    这是数据分析 Agent 领域最核心的现实困境：模型在学术基准上表现出色，在真实企业工作流中却几乎失效。
-  </p>
-
-  <div class="cliff-chart">
-    <!-- Header row (desktop only) -->
-    <div class="cliff-row cliff-header-row" style="opacity: 1; transform: none; margin-bottom: 0.5rem;">
-      <div></div>
-      <div class="cliff-model-header">GPT-4o</div>
-      <div class="cliff-model-header">o1-preview</div>
-    </div>
-
-    <div class="cliff-row">
-      <div class="cliff-label">
-        <strong>Spider 1.0</strong>
-        <small>学术基准（简化场景）</small>
-      </div>
-      <div class="cliff-bar-group" data-model="GPT-4o">
-        <div class="cliff-bar-item">
-          <div class="cliff-track">
-            <div class="cliff-fill cliff-fill-academic" style="--target-w: 86.6%">
-              <span class="cliff-pct">86.6%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="cliff-bar-group" data-model="o1-preview">
-        <div class="cliff-bar-item">
-          <div class="cliff-track">
-            <div class="cliff-fill cliff-fill-academic" style="--target-w: 91%">
-              <span class="cliff-pct">~91%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="cliff-row">
-      <div class="cliff-label">
-        <strong>BIRD</strong>
-        <small>大规模学术基准</small>
-      </div>
-      <div class="cliff-bar-group" data-model="GPT-4o">
-        <div class="cliff-bar-item">
-          <div class="cliff-track">
-            <div class="cliff-fill cliff-fill-mid" style="--target-w: 73%">
-              <span class="cliff-pct">73%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="cliff-bar-group" data-model="o1-preview">
-        <div class="cliff-bar-item">
-          <div class="cliff-track">
-            <div class="cliff-fill cliff-fill-mid" style="--target-w: 73%">
-              <span class="cliff-pct">~73%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="cliff-row">
-      <div class="cliff-label">
-        <strong>Spider 2.0</strong>
-        <small>真实企业工作流 🚨</small>
-      </div>
-      <div class="cliff-bar-group" data-model="GPT-4o">
-        <div class="cliff-bar-item">
-          <div class="cliff-track">
-            <div class="cliff-fill cliff-fill-enterprise" style="--target-w: 10.1%">
-              <span class="cliff-pct">10.1%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="cliff-bar-group" data-model="o1-preview">
-        <div class="cliff-bar-item">
-          <div class="cliff-track">
-            <div class="cliff-fill cliff-fill-enterprise" style="--target-w: 21.3%">
-              <span class="cliff-pct">21.3%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="cliff-annotation reveal">
-    <div class="cliff-annotation-icon">⚠️</div>
-    <p>Spider 2.0 包含来自 Salesforce、Google Analytics 等真实工业项目的任务，涉及跨数据库方言、超大 Schema、复杂多步骤业务推理。<strong>GPT-4o 在此的准确率仅 10.1%</strong>，与 Spider 1.0 的 86.6% 相比，断崖式下跌暴露了当前方案的核心局限。</p>
-  </div>
-
-  <div class="challenge-cards" style="margin-top: 2.5rem;">
-    <div class="challenge-card reveal">
-      <div class="challenge-card-icon">🗄️</div>
-      <h4>Schema Linking（大型 DB）</h4>
-      <p>10,000+ 张表的企业数据库，向量检索召回率有限。"Lost in the Middle" 问题：正确 Schema 在上下文里但被模型忽略。</p>
-    </div>
-    <div class="challenge-card reveal" style="transition-delay: 0.1s;">
-      <div class="challenge-card-icon">👻</div>
-      <h4>幻觉（列名 / 函数名）</h4>
-      <p>LLM 发明不存在的字段名或 API，静默失败（查询返回 0 行而非报错），比语法错误更难排查。</p>
-    </div>
-    <div class="challenge-card reveal" style="transition-delay: 0.2s;">
-      <div class="challenge-card-icon">💬</div>
-      <h4>多轮对话一致性</h4>
-      <p>"它的上个月增长率" 中 "它" 指代什么？Chat history 过滤策略是当前主要方案，但缺少通用解法。</p>
-    </div>
-    <div class="challenge-card reveal" style="transition-delay: 0.3s;">
-      <div class="challenge-card-icon">🔀</div>
-      <h4>SQL 方言异构</h4>
-      <p>BigQuery / Snowflake / Spark SQL / MySQL 方言差异大，同一查询逻辑需不同语法。方言感知 fine-tuning 仍是未解难题。</p>
-    </div>
-  </div>
-</section>
-
-<hr class="sec-divider">
-
-<!-- Section 6: Trends -->
-<section id="trends">
-  <div class="section-header reveal">
-    <div class="section-num">06 / 趋势判断</div>
-    <h2 class="section-title">接下来<span>会发生什么</span></h2>
-  </div>
-
-  <div class="trends-grid reveal">
-    <div class="trend-col">
-      <div class="trend-col-header">
-        <div class="trend-col-dot near"></div>
-        <div class="trend-col-title">近期（1–2 年）确定性高</div>
-      </div>
-
-      <div class="trend-item">
-        <div class="trend-num">01</div>
-        <div class="trend-content">
-          <h5>语义层标准化</h5>
-          <p>Databricks Unity Catalog Business Semantics 开源、dbt MetricFlow 普及，各厂商将收敛到统一语义标准</p>
-        </div>
-      </div>
-
-      <div class="trend-item">
-        <div class="trend-num">02</div>
-        <div class="trend-content">
-          <h5>MCP 协议普及</h5>
-          <p>Agent 通过 MCP 连接 Jira / Confluence / GitHub，数据分析 Agent 成为跨系统 Orchestrator</p>
-        </div>
-      </div>
-
-      <div class="trend-item">
-        <div class="trend-num">03</div>
-        <div class="trend-content">
-          <h5>专用 SQL 小模型</h5>
-          <p>SQLCoder 系列证明 7B fine-tune 可超越 GPT-4，私有化部署和成本敏感场景的需求驱动</p>
-        </div>
-      </div>
-
-      <div class="trend-item">
-        <div class="trend-num">04</div>
-        <div class="trend-content">
-          <h5>Agentic EDA 成熟化</h5>
-          <p>从 "帮你写 SQL" 进化到 "帮你完成整个分析项目"，AutoKaggle 范式向企业场景迁移</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="trend-col" style="border-color: rgba(245,158,11,0.2);">
-      <div class="trend-col-header">
-        <div class="trend-col-dot mid"></div>
-        <div class="trend-col-title">中期（2–4 年）高概率</div>
-      </div>
-
-      <div class="trend-item">
-        <div class="trend-num">01</div>
-        <div class="trend-content">
-          <h5>L4 自主化</h5>
-          <p>全流程自主（提问 → EDA → 建模 → 报告），人类只做决策验收。当前最优系统在 L2–L3</p>
-        </div>
-      </div>
-
-      <div class="trend-item">
-        <div class="trend-num">02</div>
-        <div class="trend-content">
-          <h5>多模态融合</h5>
-          <p>图表理解 + 表格推理融合，用户截一张 Excel 截图就能触发数据查询分析</p>
-        </div>
-      </div>
-
-      <div class="trend-item">
-        <div class="trend-num">03</div>
-        <div class="trend-content">
-          <h5>因果推理</h5>
-          <p>从 "描述性分析"（发生了什么）向 "因果分析"（为什么发生、如何干预）进化</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<hr class="sec-divider">
-
-<!-- Section 7: Conclusion -->
-<section id="conclusion">
-  <div class="section-header reveal">
-    <div class="section-num">07 / 核心结论</div>
-    <h2 class="section-title">现状<span>一句话</span></h2>
-  </div>
-
-  <div class="conclusion-box reveal">
-    <div class="conclusion-quote">
-      "数据分析 Agent 当前处于<br>
-      <strong style="font-style: normal; color: var(--cyan);">'学术任务已基本解决，真实企业场景仍是未解难题'</strong><br>
-      的阶段。"
-    </div>
-
-    <div class="conclusion-insights">
-      <div class="insight-item">
-        <div class="insight-icon">🎯</div>
-        <div class="insight-text">
-          <strong>核心矛盾</strong>：学术基准 90%+ ≠ 真实场景可用。Spider 2.0 用 10.1% 的准确率告诉我们，增大 LLM 不是答案。
-        </div>
-      </div>
-      <div class="insight-item">
-        <div class="insight-icon">🔑</div>
-        <div class="insight-text">
-          <strong>真正的突破口在 Schema Linking + 语义理解</strong>，而不是更大的基础模型。让 LLM 理解企业数据的语义，比让它"更聪明"更重要。
-        </div>
-      </div>
-      <div class="insight-item">
-        <div class="insight-icon">⚡</div>
-        <div class="insight-text">
-          语义层（Metric Views）是目前<strong>最有效的工程化解法</strong>：40% → 87% 的准确率提升，靠的是预定义确定性逻辑，不是更大的模型。
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="stack-rec reveal">
-    <div class="stack-rec-label">// 推荐技术组合（If building today）</div>
-    <div class="stack-items">
-      <div class="stack-item">Vanna.ai RAG 架构</div>
-      <span class="stack-plus">+</span>
-      <div class="stack-item">dbt / Unity Catalog 语义层</div>
-      <span class="stack-plus">+</span>
-      <div class="stack-item">Defog SQLCoder 专用模型</div>
-      <p style="width: 100%; font-size: 0.78rem; color: var(--text-muted); margin-top: 0.8rem; font-family: var(--font-mono);">// 三者组合，而非从零造轮子</p>
-    </div>
-  </div>
-</section>
 
 </main>
 
 <footer>
-  <p>数据分析 Agent 领域综述（2024–2026）· 由 Kira Chen 整理 · 2026年4月</p>
-  <p>基于公开学术论文、开源项目文档及行业报告综合整理</p>
+  <p>DA-Agent Survey · 由 Kira Chen 整理 · 2026年4月 · 基于公开学术论文及工业文档</p>
 </footer>
-
-<script>
-// Tab switching
-function switchTab(id) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + id).classList.add('active');
-  event.target.classList.add('active');
-}
-
-// Intersection Observer for animations
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-      // Trigger bar animations
-      if (entry.target.querySelector) {
-        entry.target.querySelectorAll('.cliff-fill').forEach(bar => {
-          bar.classList.add('animate');
-        });
-      }
-    }
-  });
-}, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
-
-// Observe all animatable elements
-document.querySelectorAll('.reveal, .timeline-item, .eco-category, .cliff-row, .challenge-card').forEach(el => {
-  observer.observe(el);
-});
-
-// Trigger bar animations
-const barObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      setTimeout(() => {
-        document.querySelectorAll('.bar-fill').forEach(bar => {
-          bar.style.width = bar.classList.contains('low') ? '45%' : '87%';
-        });
-      }, 300);
-      barObserver.disconnect();
-    }
-  });
-}, { threshold: 0.5 });
-
-const semanticSection = document.querySelector('.semantic-grid');
-if (semanticSection) barObserver.observe(semanticSection);
-
-// Cliff chart animation
-const cliffObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      setTimeout(() => {
-        document.querySelectorAll('.cliff-fill').forEach(bar => {
-          bar.classList.add('animate');
-        });
-      }, 400);
-      cliffObserver.disconnect();
-    }
-  });
-}, { threshold: 0.3 });
-
-const cliffSection = document.querySelector('.cliff-chart');
-if (cliffSection) cliffObserver.observe(cliffSection);
-
-// Hamburger menu
-function toggleMenu() {
-  const menu = document.getElementById('navMobile');
-  const btn = document.querySelector('.nav-toggle');
-  const isOpen = menu.classList.toggle('open');
-  btn.classList.toggle('open', isOpen);
-  document.body.style.overflow = isOpen ? 'hidden' : '';
-}
-
-function closeMenu() {
-  const menu = document.getElementById('navMobile');
-  const btn = document.querySelector('.nav-toggle');
-  menu.classList.remove('open');
-  btn.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-// Close menu on outside click
-document.addEventListener('click', (e) => {
-  const menu = document.getElementById('navMobile');
-  const btn = document.querySelector('.nav-toggle');
-  if (menu.classList.contains('open') &&
-      !menu.contains(e.target) &&
-      !btn.contains(e.target)) {
-    closeMenu();
-  }
-});
-
-// Share function
-function shareReport() {
-  const url = window.location.href;
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(url).then(() => {
-      const btn = document.querySelector('.share-btn');
-      const original = btn.textContent;
-      btn.textContent = '✓ 已复制链接';
-      btn.style.color = 'var(--green)';
-      btn.style.borderColor = 'rgba(16,217,138,0.4)';
-      setTimeout(() => {
-        btn.textContent = original;
-        btn.style.color = '';
-        btn.style.borderColor = '';
-      }, 2000);
-    });
-  } else {
-    window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent('数据分析 Agent 领域综述（2024–2026）'));
-  }
-}
-
-// Staggered eco-category animation
-document.querySelectorAll('.eco-category').forEach((el, i) => {
-  el.style.transitionDelay = (i * 0.1) + 's';
-});
-
-// Active nav link on scroll
-const sections = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('.nav-links a');
-
-window.addEventListener('scroll', () => {
-  let current = '';
-  sections.forEach(section => {
-    const top = section.offsetTop - 100;
-    if (window.scrollY >= top) current = section.getAttribute('id');
-  });
-  navLinks.forEach(link => {
-    link.style.color = link.getAttribute('href') === '#' + current
-      ? 'var(--cyan)' : '';
-  });
-}, { passive: true });
-</script>
 
 </body>
 </html>

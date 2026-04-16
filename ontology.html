@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ontology建模在Data Agent领域的深入调研 · DA-Agent Survey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;1,300&family=IBM+Plex+Mono:wght@400;500&family=Noto+Serif+SC:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-base: #070c16;
+  --bg-surface: #0c1422;
+  --bg-elevated: #111d30;
+  --bg-card: #0f1929;
+  --border: #1a2d4a;
+  --border-bright: #2a4570;
+  --cyan: #00c8f0;
+  --cyan-dim: #0080a0;
+  --amber: #f59e0b;
+  --green: #10d98a;
+  --purple: #a78bfa;
+  --red: #f05060;
+  --text-primary: #dce8f8;
+  --text-secondary: #7090b8;
+  --text-muted: #405878;
+  --font-display: 'Spectral', 'Noto Serif SC', serif;
+  --font-body: 'Noto Serif SC', 'Spectral', serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 15% 30%, rgba(167,139,250,0.04) 0%, transparent 50%),
+    radial-gradient(circle at 85% 70%, rgba(0,200,240,0.03) 0%, transparent 50%),
+    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(26,45,74,0.25) 40px, rgba(26,45,74,0.25) 41px),
+    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(26,45,74,0.25) 40px, rgba(26,45,74,0.25) 41px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Nav ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(7,12,22,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+}
+
+.nav-logo {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--cyan);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 0.25rem;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 0.35rem 0.7rem;
+  border-radius: 3px;
+  transition: color 0.2s, background 0.2s;
+  letter-spacing: 0.05em;
+}
+
+.nav-links a:hover { color: var(--cyan); background: rgba(0,200,240,0.08); }
+
+.nav-right { display: flex; align-items: center; gap: 0.75rem; }
+
+.back-btn {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.back-btn:hover { color: var(--cyan); border-color: var(--cyan-dim); }
+
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px; height: 40px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.nav-toggle span {
+  display: block; width: 100%; height: 1px;
+  background: var(--text-secondary);
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+.nav-toggle.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.nav-toggle.open span:nth-child(2) { opacity: 0; }
+.nav-toggle.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+.nav-mobile {
+  display: none;
+  position: fixed;
+  top: 56px; left: 0; right: 0; bottom: 0;
+  z-index: 99;
+  background: rgba(7,12,22,0.98);
+  backdrop-filter: blur(20px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.nav-mobile.open { opacity: 1; pointer-events: all; }
+
+.nav-mobile-inner {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1.5rem;
+  gap: 0.25rem;
+}
+
+.nav-mobile-inner a {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--border);
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+}
+
+.nav-mobile-inner a:hover { color: var(--cyan); }
+
+/* ── Main ── */
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 100px 2rem 6rem;
+}
+
+/* ── Article header ── */
+.article-header { margin-bottom: 4rem; }
+
+.article-tag {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--purple);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.1s forwards;
+}
+
+.article-tag::before { content: '// '; color: var(--text-muted); }
+
+h1.article-title {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 1.2rem;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.25s forwards;
+}
+
+h1.article-title em { font-style: italic; color: var(--purple); }
+
+.article-sub {
+  font-family: 'Spectral', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.35s forwards;
+  max-width: 700px;
+}
+
+.article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.45s forwards;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.meta-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--purple);
+}
+
+/* ── Executive summary ── */
+.exec-summary {
+  background: linear-gradient(135deg, rgba(167,139,250,0.06), rgba(0,200,240,0.03));
+  border: 1px solid rgba(167,139,250,0.2);
+  border-radius: 10px;
+  padding: 2rem 2rem 2rem 2rem;
+  margin-bottom: 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.exec-summary::before {
+  content: 'ABSTRACT';
+  position: absolute;
+  top: 1.2rem; right: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: rgba(167,139,250,0.3);
+  letter-spacing: 0.2em;
+}
+
+.exec-summary p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.9;
+}
+
+.exec-summary p strong { color: var(--text-primary); }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 4rem;
+}
+
+.toc-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.toc-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.toc-list a {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.toc-list a:hover { color: var(--cyan); background: rgba(0,200,240,0.06); }
+
+.toc-num {
+  color: var(--text-muted);
+  width: 1.5rem;
+  flex-shrink: 0;
+}
+
+/* ── Section structure ── */
+.article-section { margin-bottom: 5rem; }
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--purple);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+h2.sec-title {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+h2.sec-title span { color: var(--purple); font-style: italic; }
+
+h3.subsec-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  margin: 2rem 0 0.75rem;
+}
+
+.article-p {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.85;
+  margin-bottom: 1rem;
+  max-width: 800px;
+}
+
+.article-p strong { color: var(--text-primary); }
+.article-p em { color: var(--purple); font-style: italic; }
+.article-p code {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0.1em 0.4em;
+  color: var(--cyan);
+}
+
+/* ── Paper cards ── */
+.paper-cards { display: flex; flex-direction: column; gap: 1.25rem; margin: 1.5rem 0; }
+
+.paper-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: border-color 0.3s, transform 0.3s;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s ease, transform 0.5s ease, border-color 0.3s;
+}
+
+.paper-card.visible { opacity: 1; transform: translateY(0); }
+.paper-card:hover { border-color: rgba(167,139,250,0.4); }
+
+.paper-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.paper-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.paper-badge {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge-vldb { background: rgba(0,200,240,0.1); border: 1px solid rgba(0,200,240,0.25); color: var(--cyan); }
+.badge-arxiv { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); color: var(--amber); }
+.badge-2026 { background: rgba(16,217,138,0.1); border: 1px solid rgba(16,217,138,0.25); color: var(--green); }
+
+.paper-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 0.75rem;
+}
+
+.paper-value {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  border-radius: 4px;
+  padding: 0.6rem 0.8rem;
+}
+
+.paper-value::before {
+  content: '→';
+  color: var(--purple);
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+}
+
+/* ── Open source table ── */
+.oss-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 1.5rem 0;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.oss-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.oss-table th {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+}
+
+.oss-table td {
+  padding: 0.9rem 1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(26,45,74,0.4);
+  vertical-align: top;
+}
+
+.oss-table tr:last-child td { border-bottom: none; }
+
+.oss-table td:first-child {
+  color: var(--text-primary);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.oss-table td a {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--cyan);
+  text-decoration: none;
+  opacity: 0.7;
+}
+
+.oss-table td a:hover { opacity: 1; }
+
+/* ── Commercial grid ── */
+.commercial-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.commercial-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.4rem;
+  transition: border-color 0.3s, transform 0.2s;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s ease, transform 0.5s ease, border-color 0.3s;
+}
+
+.commercial-card.visible { opacity: 1; transform: translateY(0); }
+.commercial-card:hover { border-color: var(--border-bright); transform: translateY(-2px); }
+
+.commercial-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.commercial-dot {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.dot-databricks { background: #ff3621; }
+.dot-snowflake { background: #29b5e8; }
+.dot-fabric { background: #0078d4; }
+.dot-timbr { background: #7c3aed; }
+.dot-palantir { background: #1a1a2e; border: 1px solid var(--border-bright); }
+.dot-other { background: var(--amber); }
+
+.commercial-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.commercial-tag {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  margin-left: auto;
+}
+
+.tag-ga { background: rgba(16,217,138,0.1); border: 1px solid rgba(16,217,138,0.25); color: var(--green); }
+.tag-preview { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); color: var(--amber); }
+
+.commercial-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin-bottom: 0.75rem;
+}
+
+.commercial-highlight {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--cyan);
+  padding: 0.4rem 0.6rem;
+  background: rgba(0,200,240,0.05);
+  border-radius: 3px;
+  border-left: 2px solid var(--cyan);
+}
+
+/* ── Evidence/consensus box ── */
+.consensus-box {
+  background: var(--bg-card);
+  border: 1px solid rgba(16,217,138,0.25);
+  border-radius: 10px;
+  padding: 2rem;
+  margin: 2rem 0;
+}
+
+.consensus-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.consensus-icon { font-size: 1.3rem; }
+
+.consensus-title {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--green);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.evidence-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.evidence-item {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.evidence-source {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--amber);
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: 3px;
+  padding: 0.2rem 0.5rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.evidence-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.evidence-text strong { color: var(--text-primary); }
+
+/* ── Quantitative stats ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.stat-num {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--green);
+  line-height: 1;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.stat-num.amber { color: var(--amber); }
+.stat-num.red { color: var(--red); }
+
+.stat-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* ── Callout ── */
+.callout {
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+}
+
+.callout-warn {
+  background: rgba(240,80,96,0.06);
+  border: 1px solid rgba(240,80,96,0.25);
+}
+
+.callout-info {
+  background: rgba(0,200,240,0.05);
+  border: 1px solid rgba(0,200,240,0.2);
+}
+
+.callout-tip {
+  background: rgba(16,217,138,0.05);
+  border: 1px solid rgba(16,217,138,0.2);
+}
+
+.callout-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.1rem; }
+
+.callout p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+.callout p strong { color: var(--text-primary); }
+
+/* ── Conclusion ── */
+.conclusion-block {
+  background: linear-gradient(135deg, rgba(167,139,250,0.06), rgba(0,200,240,0.04));
+  border: 1px solid rgba(167,139,250,0.25);
+  border-radius: 12px;
+  padding: 2.5rem;
+  margin-top: 2rem;
+  position: relative;
+}
+
+.conclusion-block::before {
+  content: '"';
+  position: absolute;
+  top: -1rem; left: 1.5rem;
+  font-size: 7rem;
+  color: rgba(167,139,250,0.07);
+  font-family: var(--font-display);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.conclusion-quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  color: var(--text-primary);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.conclusion-bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+.conclusion-bullet {
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.bullet-marker {
+  color: var(--purple);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  padding-top: 0.15rem;
+}
+
+.bullet-text strong { color: var(--cyan); }
+
+/* ── Reveal animation ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Misc ── */
+.sec-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 4rem 0;
+}
+
+.tag-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 3px;
+  background: rgba(167,139,250,0.08);
+  border: 1px solid rgba(167,139,250,0.2);
+  color: var(--purple);
+}
+
+.tag.cyan { background: rgba(0,200,240,0.08); border-color: rgba(0,200,240,0.2); color: var(--cyan); }
+.tag.green { background: rgba(16,217,138,0.08); border-color: rgba(16,217,138,0.2); color: var(--green); }
+.tag.amber { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.2); color: var(--amber); }
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  nav { padding: 0 1rem; }
+  .nav-links { display: none; }
+  .nav-toggle { display: flex; }
+  .nav-mobile { display: block; }
+  main { padding: 80px 1rem 4rem; }
+  .commercial-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .article-meta { gap: 1rem; }
+}
+
+@media (max-width: 480px) {
+  h1.article-title { font-size: 1.8rem; }
+  .exec-summary { padding: 1.25rem; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .paper-card-header { flex-direction: column; align-items: flex-start; }
+  .oss-table { min-width: 540px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">DA·Agent·Survey</a>
+  <ul class="nav-links">
+    <li><a href="#research">学术研究</a></li>
+    <li><a href="#opensource">开源项目</a></li>
+    <li><a href="#commercial">商业产品</a></li>
+    <li><a href="#consensus">业界共识</a></li>
+    <li><a href="#conclusion">结论</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="index.html" class="back-btn">← 返回索引</a>
+    <button class="nav-toggle" onclick="toggleMenu()" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="nav-mobile" id="navMobile">
+  <div class="nav-mobile-inner">
+    <a href="index.html" onclick="closeMenu()">← 返回索引</a>
+    <a href="#research" onclick="closeMenu()">01 · 学术研究</a>
+    <a href="#opensource" onclick="closeMenu()">02 · 开源项目</a>
+    <a href="#commercial" onclick="closeMenu()">03 · 商业产品</a>
+    <a href="#consensus" onclick="closeMenu()">04 · 业界共识</a>
+    <a href="#conclusion" onclick="closeMenu()">05 · 结论</a>
+  </div>
+</div>
+
+<main>
+
+<!-- Article Header -->
+<header class="article-header">
+  <div class="article-tag">专项深度报告 · 2026年4月</div>
+  <h1 class="article-title"><em>Ontology</em> 建模在<br>Data Agent 领域的深入调研</h1>
+  <div class="article-sub">Ontology Modeling in Data Agents: Academic Research, Open Source Ecosystem &amp; Commercial Landscape</div>
+  <div class="article-meta">
+    <div class="meta-item">
+      <div class="meta-dot"></div>
+      <span>由 Kira Chen 整理 · 2026年4月</span>
+    </div>
+    <div class="meta-item">
+      <div class="meta-dot"></div>
+      <span>5 个核心章节 · 基于 Grok 深度调研</span>
+    </div>
+    <div class="meta-item">
+      <div class="meta-dot"></div>
+      <span>引用 700+ 来源</span>
+    </div>
+  </div>
+</header>
+
+<!-- Abstract -->
+<div class="exec-summary reveal">
+  <p>
+    Ontology建模（本体论建模）在 Data Agent（数据分析 Agent、Text-to-SQL Agent、Agentic Analytics）领域已从"辅助工具"演变为<strong>核心基础设施</strong>。它通过形式化业务实体、关系、度量和规则，构建可解释、可推理的 Semantic Layer（语义层），直接解决 Agent 在 Schema Linking、幻觉、跨域一致性和自主规划上的痛点。
+  </p>
+  <br>
+  <p>
+    2025–2026 年，学术界聚焦 <strong>Agent 驱动的 Ontology Matching 与动态构建</strong>；开源项目强调 <strong>YAML 声明式 + API-first 设计</strong>；商业产品则实现平台原生集成，支持 L3/L4 自主化 Agent。Gartner 明确将"universal semantic layers"列为 <strong>2030 年前的关键基础设施</strong>（与数据平台、网络安全同级），业界共识高度一致：<em>无 Ontology 建模的 Data Agent 难以落地生产。</em>
+  </p>
+</div>
+
+<!-- TOC -->
+<nav class="toc reveal" aria-label="目录">
+  <div class="toc-label">// 目录</div>
+  <ul class="toc-list">
+    <li><a href="#research"><span class="toc-num">01</span>学术研究——三大方向（2025–2026）</a></li>
+    <li><a href="#opensource"><span class="toc-num">02</span>开源项目全景</a></li>
+    <li><a href="#commercial"><span class="toc-num">03</span>商业化产品格局</a></li>
+    <li><a href="#consensus"><span class="toc-num">04</span>业界共识与定量效果证据</a></li>
+    <li><a href="#conclusion"><span class="toc-num">05</span>结论与落地建议</a></li>
+  </ul>
+</nav>
+
+<hr class="sec-divider">
+
+<!-- Section 1: Academic Research -->
+<section id="research" class="article-section">
+  <div class="section-label">01 / 学术研究</div>
+  <h2 class="sec-title">三大研究方向<span>（2025–2026）</span></h2>
+
+  <p class="article-p reveal">
+    Ontology 在 Data Agent 中的作用主要体现在三个方向：<strong>自动化 Ontology Matching</strong>、<strong>动态 Semantic Layer 构建</strong>、<strong>Neurosymbolic 约束推理</strong>，直接服务于 Agent 流水线中的 Intent Parsing、Schema Linking 和 Planner 模块。
+  </p>
+
+  <h3 class="subsec-title reveal">方向一：Agent 驱动的 Ontology Matching</h3>
+
+  <div class="paper-cards">
+    <div class="paper-card">
+      <div class="paper-card-header">
+        <div class="paper-title">Agent-OM: Leveraging LLM Agents for Ontology Matching</div>
+        <span class="paper-badge badge-vldb">VLDB 2025/2026</span>
+      </div>
+      <p class="paper-desc">
+        首个纯 LLM-Agent 驱动的 Ontology Matching 框架。采用 <strong>Siamese 双代理结构</strong>（Retrieval Agent + Matching Agent）+ 共享 Memory + 专用 OM 工具集，通过 CoT 规划、RAG 和混合数据库（关系 + 向量）实现异构 Ontology 的自动对齐。在 OAEI 基准上复杂任务显著超越传统方法。开源实现已发布。
+      </p>
+      <div class="paper-value">自动化构建企业级 Semantic Layer，支持多源 Schema 到 KG 的映射，解决 Schema Linking 核心瓶颈</div>
+      <div class="tag-row">
+        <span class="tag cyan">Ontology Matching</span>
+        <span class="tag cyan">Multi-Agent</span>
+        <span class="tag">开源</span>
+        <span class="tag">OAEI 基准</span>
+      </div>
+    </div>
+
+    <div class="paper-card">
+      <div class="paper-card-header">
+        <div class="paper-title">A Multi-Agent System for Semantic Mapping of Relational Databases to Knowledge Graphs</div>
+        <span class="paper-badge badge-arxiv">arXiv 2511.06455 · 2025.11</span>
+      </div>
+      <p class="paper-desc">
+        三代理系统（<code>Mapping Agent</code> + <code>Relation Agent</code> + <code>Validator Agent</code>），使用 GPT-4o-mini 将关系表/列映射到 Schema.org Ontology，构建统一 KG Semantic Layer。Spider 数据集 5 个领域平均映射准确率 <strong>&gt;90%</strong>（高置信度任务达 100%）。
+      </p>
+      <div class="paper-value">为 Text-to-SQL Agent 提供 Ontology 驱动的语义 grounding，直接可落地为 Schema Linking 模块</div>
+      <div class="tag-row">
+        <span class="tag cyan">DB→KG 映射</span>
+        <span class="tag">Schema.org</span>
+        <span class="tag amber">Spider 基准 &gt;90%</span>
+      </div>
+    </div>
+
+    <div class="paper-card">
+      <div class="paper-card-header">
+        <div class="paper-title">GenOM: LLM-Enhanced Ontology Alignment</div>
+        <span class="paper-badge badge-arxiv">arXiv 2508.10703 · 2025.8</span>
+      </div>
+      <p class="paper-desc">
+        LLM 生成描述 + 嵌入相似度 + 精确字符串匹配的三阶段流水线，提升 Ontology Alignment 精度。针对同义词、缩写、跨语言概念映射效果显著。
+      </p>
+      <div class="paper-value">Ontology Alignment 精度提升，适用于企业多系统 Schema 统一</div>
+      <div class="tag-row">
+        <span class="tag cyan">Ontology Alignment</span>
+        <span class="tag">嵌入+精确匹配</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="subsec-title reveal">方向二：动态 Semantic Layer 构建</h3>
+
+  <div class="paper-cards">
+    <div class="paper-card">
+      <div class="paper-card-header">
+        <div class="paper-title">SciDataCopilot: An Agentic Data Preparation Framework</div>
+        <span class="paper-badge badge-2026">arXiv 2602.09132 · 2026.2</span>
+      </div>
+      <p class="paper-desc">
+        科学数据 Agent 框架，使用 <strong>Data Lake + Tool Lake + Case Lake 科学 Ontology</strong> 驱动 4 代理协作（Data Access / Intent Parsing / Data Processing / Data Integration）。实现异构实验数据的自主准备与 AI-Ready 转换。
+      </p>
+      <div class="paper-value">Ontology 作为知识库核心驱动多代理协作，扩展到领域特定（科学、医疗）DA-Agent</div>
+      <div class="tag-row">
+        <span class="tag">科学数据</span>
+        <span class="tag cyan">4-Agent 协作</span>
+        <span class="tag amber">领域 Ontology</span>
+      </div>
+    </div>
+
+    <div class="paper-card">
+      <div class="paper-card-header">
+        <div class="paper-title">LETHE-Chat: Schema-Aware LLM Agent for Clinical Text-to-SQL</div>
+        <span class="paper-badge badge-arxiv">2025/2026</span>
+      </div>
+      <p class="paper-desc">
+        结合临床医疗 Ontology（SNOMED、FHIR Schema）实现领域特定 grounding 的 Text-to-SQL Agent。Schema-Aware 机制将 Ontology 注入 Intent Parsing 阶段，显著减少医疗术语幻觉。
+      </p>
+      <div class="paper-value">医疗领域 Ontology + Text-to-SQL 结合的典型案例，验证了 ontology grounding 的垂直场景价值</div>
+      <div class="tag-row">
+        <span class="tag">医疗 Ontology</span>
+        <span class="tag cyan">SNOMED/FHIR</span>
+        <span class="tag">Text-to-SQL</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="subsec-title reveal">方向三：Neurosymbolic 约束推理</h3>
+
+  <div class="paper-cards">
+    <div class="paper-card">
+      <div class="paper-card-header">
+        <div class="paper-title">Ontology-Constrained Neural Reasoning in Enterprise Agentic Systems</div>
+        <span class="paper-badge badge-2026">arXiv 2604.00555 · 2026.4</span>
+      </div>
+      <p class="paper-desc">
+        提出<strong>三层 Ontology 架构</strong>（<em>Role Ontology</em> 定义代理职责、<em>Domain Ontology</em> 定义领域知识结构、<em>Interaction Ontology</em> 规范交互流程）+ Neurosymbolic 架构，在 Foundation AgenticOS 平台上约束 LLM 代理的输入/输出。600+ 次实验（p&lt;0.001）在金融、保险、医疗等企业场景中显著降低幻觉、提升合规性和角色一致性。
+      </p>
+      <div class="paper-value">直接解决调研中提到的"规划一致性"和"domain drift"痛点，是 Compound AI 流水线的形式化约束层</div>
+      <div class="tag-row">
+        <span class="tag">三层 Ontology</span>
+        <span class="tag cyan">Neurosymbolic</span>
+        <span class="tag amber">金融/保险/医疗</span>
+        <span class="tag green">600+ 实验验证</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-info reveal">
+    <div class="callout-icon">💡</div>
+    <p><strong>总体趋势：</strong>Ontology 从静态知识库升级为 Agent 可操作、可动态构建的上下文层，与 Compound AI 流水线高度融合。学术侧重自动化对齐与神经符号融合，工业侧重治理与 grounding。</p>
+  </div>
+</section>
+
+<hr class="sec-divider">
+
+<!-- Section 2: Open Source -->
+<section id="opensource" class="article-section">
+  <div class="section-label">02 / 开源生态</div>
+  <h2 class="sec-title">开源项目<span>全景</span></h2>
+
+  <p class="article-p reveal">
+    2026 年开源生态聚焦<strong>声明式 YAML 建模 + Agent API + 跨平台 SQL 编译</strong>，便于 Data Agent 直接消费。主要分为两类：<em>Semantic Layer 框架</em>（面向 Agent 查询接口）和 <em>Ontology 工具</em>（面向自动化映射与对齐）。
+  </p>
+
+  <div class="oss-table-wrap reveal">
+    <table class="oss-table">
+      <thead>
+        <tr>
+          <th>项目</th>
+          <th>核心特性</th>
+          <th>对 Data Agent 的价值</th>
+          <th>链接</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>WrenAI</td>
+          <td>带 Semantic Layer（MDL）的开源 Text-to-SQL + Text-to-Chart GenBI Agent，YAML 定义业务语义</td>
+          <td>业务定义一次编码，Agent 查询自动 grounding，避免 raw SQL 幻觉</td>
+          <td><a href="https://github.com/Canner/WrenAI" target="_blank">Canner/WrenAI</a></td>
+        </tr>
+        <tr>
+          <td>OrionBelt</td>
+          <td>API-first 语义引擎，YAML 模型编译为多方言 SQL（BigQuery/Snowflake/Databricks 等），内置 MCP 协议支持</td>
+          <td>Agent 专用 Query Planner，支持 MCP 协议直接集成</td>
+          <td><a href="https://github.com/ralfbecher/orionbelt-semantic-layer" target="_blank">GitHub</a></td>
+        </tr>
+        <tr>
+          <td>dbt MetricFlow</td>
+          <td>指标层引擎（Apache-2.0 开源），YAML 定义 Metric/Dimension/Entity，跨平台 SQL 编译</td>
+          <td>Agent 可直接查询治理后的业务概念，dbt Labs 明确定位"AI Agent 与结构化数据的桥梁"</td>
+          <td><a href="https://github.com/dbt-labs/metricflow" target="_blank">dbt-labs/metricflow</a></td>
+        </tr>
+        <tr>
+          <td>Cube.dev</td>
+          <td>成熟开源 Semantic Layer（代码优先，REST/GraphQL/SQL API），多平台适配</td>
+          <td>独立于数据仓库的通用语义层，适合多源 AI 集成</td>
+          <td><a href="https://github.com/cube-js/cube" target="_blank">cube-js/cube</a></td>
+        </tr>
+        <tr>
+          <td>Semantica</td>
+          <td>上下文图 + Semantic Layer + 决策智能框架（可解释 + 溯源 + Accountability Layer）</td>
+          <td>为 Agent 构建可审计的决策链，支持合规场景</td>
+          <td><a href="https://github.com/Hawksight-AI/semantica" target="_blank">GitHub</a></td>
+        </tr>
+        <tr>
+          <td>Agent-OM</td>
+          <td>LLM-Agent Ontology Matching 工具集（Siamese 双代理，OAEI 基准验证）</td>
+          <td>自动化 Schema→Ontology 映射，动态构建企业 Semantic Layer</td>
+          <td><a href="https://github.com/qzc438/ontology-llm" target="_blank">GitHub</a></td>
+        </tr>
+        <tr>
+          <td>AWS Semantic Layer Sample</td>
+          <td>使用 Bedrock Agent 构建数据无关 Semantic Layer（Schema Discovery + Graph Traversal），完整参考架构</td>
+          <td>完全 Agent-native 参考架构，可直接 fork 验证</td>
+          <td><a href="https://github.com/aws-samples/sample-semantic-layer-using-agents" target="_blank">aws-samples</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-tip reveal">
+    <div class="callout-icon">📋</div>
+    <p><strong>Open Semantic Interchange (OSI) 规范</strong>（2026.1，Apache-2.0）：由 Snowflake / dbt / Atlan 等 30+ 组织联合维护，实现 Semantic Metadata 跨平台交换标准。这是语义层互操作性的重要基础设施，未来将显著降低 Multi-Cloud Data Agent 的集成成本。</p>
+  </div>
+</section>
+
+<hr class="sec-divider">
+
+<!-- Section 3: Commercial -->
+<section id="commercial" class="article-section">
+  <div class="section-label">03 / 商业产品</div>
+  <h2 class="sec-title">商业化产品<span>格局</span></h2>
+
+  <p class="article-p reveal">
+    主流云厂商与专用厂商均已将 Ontology/Semantic Layer 作为 Agent-first 特性 GA，2026 年形成<strong>"平台原生 vs. 专用 Ontology"两极格局</strong>。
+  </p>
+
+  <div class="commercial-grid">
+    <div class="commercial-card">
+      <div class="commercial-header">
+        <div class="commercial-dot dot-databricks"></div>
+        <div class="commercial-name">Databricks</div>
+        <span class="commercial-tag tag-ga">2026.4 GA</span>
+      </div>
+      <p class="commercial-desc">
+        Unity Catalog Business Semantics / Metric Views。在 Unity Catalog 中集中定义治理的 Metric Views（业务 KPI、维度、度量、过滤规则、同义词），YAML/SQL 声明式定义。Mosaic AI Agent Framework 直接消费，继承完整 RBAC/Lineage/Masking 治理。
+      </p>
+      <div class="commercial-highlight">强项：治理统一，Agent 直接消费，避免"Lost in the Middle"</div>
+    </div>
+
+    <div class="commercial-card">
+      <div class="commercial-header">
+        <div class="commercial-dot dot-snowflake"></div>
+        <div class="commercial-name">Snowflake</div>
+        <span class="commercial-tag tag-ga">2026.3 GA</span>
+      </div>
+      <p class="commercial-desc">
+        Agent Context Layer = Semantic Model（Metric/Dimension）+ Ontology（关系/身份层）双层架构。Cortex Analyst + Semantic Views Autopilot（AI 自动建模）。Open Semantic Interchange 推动可移植性。
+      </p>
+      <div class="commercial-highlight">强项：Agent Context Layer 直接 grounding 多代理推理，AI 自动建模降低维护成本</div>
+    </div>
+
+    <div class="commercial-card">
+      <div class="commercial-header">
+        <div class="commercial-dot dot-fabric"></div>
+        <div class="commercial-name">Microsoft Fabric IQ</div>
+        <span class="commercial-tag tag-preview">Preview GA</span>
+      </div>
+      <p class="commercial-desc">
+        原生 Ontology Item（Entity Type + Properties + Relationships + 约束），绑定 OneLake/实时数据。Fabric Data Agent 可直接选择 Ontology 作为数据源，支持跨域推理与 Operations Agents。形式化程度最高（OWL 级）。
+      </p>
+      <div class="commercial-highlight">强项：Ontology 作为一等公民，形式化推理能力最强，专为 Data Agent 设计</div>
+    </div>
+
+    <div class="commercial-card">
+      <div class="commercial-header">
+        <div class="commercial-dot dot-timbr"></div>
+        <div class="commercial-name">Timbr.ai</div>
+        <span class="commercial-tag tag-ga">Commercial</span>
+      </div>
+      <p class="commercial-desc">
+        SQL Ontology 平台，Ontology-based Semantic Layer（SQL-native KG），零拷贝虚拟化，原生支持 Databricks/Snowflake/Fabric。内置 GraphRAG + NL2SQL 引擎，AI Agent 可通过 SQL 端点直接消费完整 Ontology。
+      </p>
+      <div class="commercial-highlight">强项：SQL-native 设计，无迁移成本，跨平台一致性最佳</div>
+    </div>
+
+    <div class="commercial-card">
+      <div class="commercial-header">
+        <div class="commercial-dot dot-palantir"></div>
+        <div class="commercial-name">Palantir Foundry</div>
+        <span class="commercial-tag tag-ga">Commercial</span>
+      </div>
+      <p class="commercial-desc">
+        企业级 Ontology-Driven 平台（数字孪生 + 动态治理）。2025 年与 Databricks 战略合作，Palantir Ontology System 与 Lakehouse 深度集成。不止分析，还支持运营执行，适合高自主化 Agent。
+      </p>
+      <div class="commercial-highlight">强项：支持 L4 自主化 Agent，运营执行能力业界最强</div>
+    </div>
+
+    <div class="commercial-card">
+      <div class="commercial-header">
+        <div class="commercial-dot dot-other"></div>
+        <div class="commercial-name">其他生态</div>
+        <span class="commercial-tag tag-preview">多厂商</span>
+      </div>
+      <p class="commercial-desc">
+        <strong>Atlan</strong>：治理 + Ontology，数据资产目录与 Agent grounding 结合。<br>
+        <strong>PuppyGraph</strong>：Graph 作为 Ontology 加速 Text-to-SQL，零 ETL。<br>
+        <strong>Neo4j</strong>：GraphRAG + Databricks Agent Bricks，多跳关系推理。
+      </p>
+      <div class="commercial-highlight">强项：各有垂直场景优势，可作为平台原生方案的补充层</div>
+    </div>
+  </div>
+</section>
+
+<hr class="sec-divider">
+
+<!-- Section 4: Consensus & Evidence -->
+<section id="consensus" class="article-section">
+  <div class="section-label">04 / 业界共识</div>
+  <h2 class="sec-title">共识与<span>定量证据</span></h2>
+
+  <p class="article-p reveal">
+    2026 年，Ontology/Semantic Modeling 对 Data Agent 落地效果的证据已从"案例积累"升级为"基准验证 + 分析师共识 + 厂商集体行动"三者共振。
+  </p>
+
+  <div class="stats-grid reveal">
+    <div class="stat-card">
+      <span class="stat-num">~100%</span>
+      <div class="stat-label">带 Ontology/Semantic Layer 的 Text-to-SQL 准确率<br><small>(dbt 基准，治理后场景)</small></div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num amber">40%+</span>
+      <div class="stat-label">幻觉率降低幅度<br><small>(MEGA-RAG，context-graph vs. vanilla)</small></div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num red">60%</span>
+      <div class="stat-label">Gartner 预警：仅依赖 protocol-level access 的 Agentic 项目将于 2028 年前失败</div>
+    </div>
+  </div>
+
+  <div class="consensus-box reveal">
+    <div class="consensus-header">
+      <div class="consensus-icon">✅</div>
+      <div class="consensus-title">业界共识证据清单</div>
+    </div>
+    <div class="evidence-items">
+      <div class="evidence-item">
+        <span class="evidence-source">Gartner 2026</span>
+        <div class="evidence-text">到 2030 年，<strong>universal semantic layers 将被视为与数据平台、网络安全同等重要的 critical infrastructure</strong>。上下文（context）是"AI 的大脑"，D&amp;A 领导者必须将其列为必投项目。</div>
+      </div>
+      <div class="evidence-item">
+        <span class="evidence-source">行业调研</span>
+        <div class="evidence-text"><strong>80% 数据从业者</strong>将 semantic layers 列为 AI 最重要使能器，高于更快计算或 AI 工具本身（Promethium 2026 Survey）。</div>
+      </div>
+      <div class="evidence-item">
+        <span class="evidence-source">Snowflake</span>
+        <div class="evidence-text">Agentic Semantic Model Improvement 系统（2025）通过自动优化 semantic model，使 Text-to-SQL <strong>准确率显著提升</strong>；无 guardrail 的 raw SQL 在生产环境持续出错。</div>
+      </div>
+      <div class="evidence-item">
+        <span class="evidence-source">AgentSM 2026</span>
+        <div class="evidence-text">Spider 2.0 Lite 基准：带 Semantic Memory 的 Agent 准确率 <strong>44.8%</strong>，轨迹长度减少 35%，Token 消耗减少 25%；无轨迹读取时准确率暴跌至 17.3%。</div>
+      </div>
+      <div class="evidence-item">
+        <span class="evidence-source">a16z</span>
+        <div class="evidence-text">"没有 robust context layer（ontology/semantic），<strong>Data Agent 无法超越 Text-to-SQL</strong>"——a16z 数据基础设施报告，2026。</div>
+      </div>
+      <div class="evidence-item">
+        <span class="evidence-source">Tribal Knowledge</span>
+        <div class="evidence-text">Arming Data Agents with Tribal Knowledge（arXiv:2602.13521）：bolt-on 语义知识模块在 Spider 2.0 和 BIRD 上准确率提升最高 <strong>+16.9%</strong>。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-warn reveal">
+    <div class="callout-icon">⚠️</div>
+    <p><strong>小争议：</strong>少数观点认为 semantic layer 虽必要但仍不够（需完整 KG/上下文图），或在某些 Text-to-SQL 场景下 semantic layer 优于纯 graph ontology。但整体方向高度一致：<strong>无 ontology 建模 → 落地困难；有 → 可靠性跃升。</strong></p>
+  </div>
+</section>
+
+<hr class="sec-divider">
+
+<!-- Section 5: Conclusion -->
+<section id="conclusion" class="article-section">
+  <div class="section-label">05 / 结论</div>
+  <h2 class="sec-title">结论与<span>落地建议</span></h2>
+
+  <div class="conclusion-block reveal">
+    <div class="conclusion-quote">
+      "2026 年，Ontology 建模已达成业界共识——它是 Data Agent 从 PoC 走向生产、从 Text-to-SQL 走向 L4 自主化的<strong style="font-style: normal; color: var(--purple);">非谈判基础</strong>。"
+    </div>
+    <div class="conclusion-bullets">
+      <div class="conclusion-bullet">
+        <span class="bullet-marker">01</span>
+        <div class="bullet-text"><strong>学术层</strong>：Agent-OM / Neurosymbolic Reasoning 提供自动化构建与形式化约束方法，是 Semantic Layer 的技术底座。</div>
+      </div>
+      <div class="conclusion-bullet">
+        <span class="bullet-marker">02</span>
+        <div class="bullet-text"><strong>开源层</strong>：WrenAI / dbt MetricFlow / Cube.dev 降低工程门槛，YAML 声明式 + API-first 设计让 Data Agent 直接消费语义。</div>
+      </div>
+      <div class="conclusion-bullet">
+        <span class="bullet-marker">03</span>
+        <div class="bullet-text"><strong>商业层</strong>：Databricks/Snowflake/Fabric 提供平台原生集成，治理统一、无额外集成开销，是企业快速起步的首选。</div>
+      </div>
+      <div class="conclusion-bullet">
+        <span class="bullet-marker">04</span>
+        <div class="bullet-text"><strong style="color: var(--cyan);">推荐混合架构：</strong>平台原生 Semantic Layer（Databricks Metric Views 或 Snowflake Cortex）+ 专用 Ontology 工具（Timbr 或 Neo4j GraphRAG）+ 开源 dbt MetricFlow，覆盖治理、推理、成本三维需求。</div>
+      </div>
+      <div class="conclusion-bullet">
+        <span class="bullet-marker">05</span>
+        <div class="bullet-text"><strong>未来方向：</strong>Semantic Layer（度量治理）与 Ontology（关系推理）融合趋势明确；OSI 标准将推动可移植性；Agent Context Layer 正成为 L3/L4 自主化 Agent 的标配基础设施。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer style="border-top: 1px solid var(--border); padding: 3rem 2rem; text-align: center; position: relative; z-index: 1;">
+  <p style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); letter-spacing: 0.05em;">
+    Ontology建模在Data Agent领域的深入调研 · 由 Kira Chen 整理 · 2026年4月
+  </p>
+  <p style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); margin-top: 0.4rem;">
+    基于 Grok 深度调研，引用 700+ 来源 · <a href="index.html" style="color: var(--cyan); text-decoration: none;">← 返回文章索引</a>
+  </p>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('visible');
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal, .paper-card, .commercial-card').forEach(el => observer.observe(el));
+
+function toggleMenu() {
+  const menu = document.getElementById('navMobile');
+  const btn = document.querySelector('.nav-toggle');
+  const isOpen = menu.classList.toggle('open');
+  btn.classList.toggle('open', isOpen);
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+}
+
+function closeMenu() {
+  const menu = document.getElementById('navMobile');
+  const btn = document.querySelector('.nav-toggle');
+  menu.classList.remove('open');
+  btn.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('navMobile');
+  const btn = document.querySelector('.nav-toggle');
+  if (menu && menu.classList.contains('open') && !menu.contains(e.target) && !btn.contains(e.target)) closeMenu();
+});
+</script>
+
+</body>
+</html>
