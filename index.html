@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DA-Agent Survey · 数据分析 Agent 调研系列</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;1,300&family=IBM+Plex+Mono:wght@400;500&family=Noto+Serif+SC:wght@300;400;600&display=swap" rel="stylesheet">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title data-i18n-id="t16">DA-Agent Survey · Data Analytics Agent Research Series</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;1,300&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=Noto+Serif+SC:wght@300;400;600&amp;display=swap" rel="stylesheet"/>
 <style>
 :root {
   --bg-base: #070c16;
@@ -376,95 +377,138 @@ footer p {
   .card-footer { flex-direction: column; align-items: flex-start; }
 }
 </style>
-</head>
+
+<style id="i18n-css">
+/* Language toggle button */
+.lang-toggle-btn {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.7rem;
+  color: var(--text-secondary, #7090b8);
+  background: none;
+  border: 1px solid var(--border, #1a2d4a);
+  border-radius: 4px;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+.lang-toggle-btn:hover {
+  color: var(--cyan, #00c8f0);
+  border-color: var(--cyan-dim, #0080a0);
+}
+.lang-toggle-btn .lang-active {
+  color: var(--cyan, #00c8f0);
+}
+</style></head>
 <body>
-
 <nav>
-  <div class="nav-logo">DA·Agent·Survey</div>
-  <div class="nav-tagline">数据分析 Agent 调研系列 · Kira Chen</div>
-</nav>
-
+<div class="nav-logo">DA·Agent·Survey</div>
+<div class="nav-tagline">数据分析 Agent 调研系列 · Kira Chen</div>
+<button class="lang-toggle-btn" onclick="toggleLang()"><span class="lang-active">EN</span> / ZH</button></nav>
 <main>
-
-  <div class="index-hero">
-    <div class="index-hero-tag">调研系列 · 持续更新</div>
-    <h1 class="index-title">数据分析 <em>Agent</em><br>调研系列</h1>
-    <p class="index-desc">
-      覆盖 Text-to-SQL、Compound AI 架构、Ontology 建模、开源生态、企业落地等核心议题。<br>
-      由 Kira Chen 整理，聚焦 2024–2026 年最新研究与工业实践。
-    </p>
-    <div class="index-meta">
-      <div class="index-meta-item"><span>2</span> 篇文章</div>
-      <div class="index-meta-item"><span>2026.04</span> 最后更新</div>
-      <div class="index-meta-item"><span>GitHub Pages</span> 公开发布</div>
-    </div>
-  </div>
-
-  <div class="articles-label">// 文章列表</div>
-
-  <div class="articles-grid">
-
-    <a href="survey.html" class="article-card featured">
-      <div class="card-series"><span class="card-number">01</span>综合综述</div>
-      <div class="card-date">2026年4月 · 首发</div>
-      <h2 class="card-title">数据分析 <em>Agent</em> 领域综述<br>（2024–2026）</h2>
-      <p class="card-desc">
-        覆盖 Text-to-SQL 演进三阶段、Compound AI 流水线、语义层防幻觉机制、开源生态全景、准确率断崖（Spider 2.0 真实企业场景 10.1%），以及 L4 自主化趋势研判。
-      </p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="card-tag">Text-to-SQL</span>
-          <span class="card-tag">Compound AI</span>
-          <span class="card-tag">Semantic Layer</span>
-          <span class="card-tag">开源生态</span>
-        </div>
-        <div class="card-read-btn">阅读 →</div>
-      </div>
-    </a>
-
-    <a href="ontology.html" class="article-card article-new">
-      <div class="new-badge">NEW</div>
-      <div class="card-series"><span class="card-number">02</span>专项深度</div>
-      <div class="card-date">2026年4月 · 新增</div>
-      <h2 class="card-title"><em>Ontology</em> 建模在<br>Data Agent 领域的深入调研</h2>
-      <p class="card-desc">
-        学术研究（Agent-OM、Neurosymbolic 约束推理）、开源项目（WrenAI、dbt MetricFlow、OrionBelt）、商业产品（Databricks/Snowflake/Fabric/Timbr）全景，附业界共识定量证据。
-      </p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="card-tag">Ontology</span>
-          <span class="card-tag">Semantic Layer</span>
-          <span class="card-tag">Agent-OM</span>
-          <span class="card-tag">Gartner 共识</span>
-        </div>
-        <div class="card-read-btn">阅读 →</div>
-      </div>
-    </a>
-
-  </div>
-
-  <div class="about-section">
-    <div class="about-block">
-      <h3>关于这个系列</h3>
-      <p>
-        本系列由 Kira Chen（TrickleAI/HappyCapy CTO）整理，基于 arXiv 论文、GitHub 开源项目、Gartner 报告及工业界产品文档综合分析，聚焦 Data Agent 领域的技术前沿与工程落地。
-      </p>
-    </div>
-    <div class="about-block">
-      <h3>相关链接</h3>
-      <div class="about-links">
-        <a href="https://github.com/warren-wupeng/da-agent-survey" class="about-link" target="_blank">↗ GitHub 仓库</a>
-        <a href="survey.html" class="about-link">→ 综述文章（第01篇）</a>
-        <a href="ontology.html" class="about-link">→ Ontology 专项报告（第02篇）</a>
-      </div>
-    </div>
-  </div>
-
+<div class="index-hero">
+<div class="index-hero-tag">调研系列 · 持续更新</div>
+<h1 class="index-title" data-i18n-id="t1">Data Analytics <em>Agent</em><br/>Research Series</h1>
+<p class="index-desc" data-i18n-id="t2">Covering core topics including Text-to-SQL, Compound AI architecture, Ontology modeling, open-source ecosystem, and enterprise deployment.<br/>
+      Compiled by Kira Chen, focusing on the latest research and industrial practices from 2024–2026.</p>
+<div class="index-meta">
+<div class="index-meta-item"><span>2</span> 篇文章</div>
+<div class="index-meta-item"><span>2026.04</span> 最后更新</div>
+<div class="index-meta-item"><span>GitHub Pages</span> 公开发布</div>
+</div>
+</div>
+<div class="articles-label">// 文章列表</div>
+<div class="articles-grid">
+<a class="article-card featured" href="survey.html">
+<div class="card-series"><span class="card-number">01</span>综合综述</div>
+<div class="card-date">2026年4月 · 首发</div>
+<h2 class="card-title" data-i18n-id="t3">Data Analytics <em>Agent</em> Domain Survey<br/>(2024–2026)</h2>
+<p class="card-desc" data-i18n-id="t4">Covering the three stages of Text-to-SQL evolution, Compound AI pipelines, semantic layer anti-hallucination mechanisms, open-source ecosystem landscape, accuracy cliff (Spider 2.0 real enterprise scenario 10.1%), and L4 autonomy trend analysis.</p>
+<div class="card-footer">
+<div class="card-tags">
+<span class="card-tag">Text-to-SQL</span>
+<span class="card-tag">Compound AI</span>
+<span class="card-tag">Semantic Layer</span>
+<span class="card-tag" data-i18n-id="t5">Open-Source Ecosystem</span>
+</div>
+<div class="card-read-btn">阅读 →</div>
+</div>
+</a>
+<a class="article-card article-new" href="ontology.html">
+<div class="new-badge">NEW</div>
+<div class="card-series"><span class="card-number">02</span>专项深度</div>
+<div class="card-date">2026年4月 · 新增</div>
+<h2 class="card-title" data-i18n-id="t6">In-Depth Research on <em>Ontology</em> Modeling<br/>in the Data Agent Domain</h2>
+<p class="card-desc" data-i18n-id="t7">A comprehensive landscape of academic research (Agent-OM, Neurosymbolic constraint reasoning), open-source projects (WrenAI, dbt MetricFlow, OrionBelt), and commercial products (Databricks/Snowflake/Fabric/Timbr), with quantitative evidence of industry consensus.</p>
+<div class="card-footer">
+<div class="card-tags">
+<span class="card-tag">Ontology</span>
+<span class="card-tag">Semantic Layer</span>
+<span class="card-tag">Agent-OM</span>
+<span class="card-tag" data-i18n-id="t8">Gartner Consensus</span>
+</div>
+<div class="card-read-btn">阅读 →</div>
+</div>
+</a>
+</div>
+<div class="about-section">
+<div class="about-block">
+<h3 data-i18n-id="t9">About This Series</h3>
+<p data-i18n-id="t10">This series is compiled by Kira Chen (TrickleAI/HappyCapy CTO), based on comprehensive analysis of arXiv papers, GitHub open-source projects, Gartner reports, and industry product documentation, focusing on the technical frontier and engineering implementation of the Data Agent domain.</p>
+</div>
+<div class="about-block">
+<h3 data-i18n-id="t11">Related Links</h3>
+<div class="about-links">
+<a class="about-link" data-i18n-id="t12" href="https://github.com/warren-wupeng/da-agent-survey" target="_blank">↗ GitHub Repository</a>
+<a class="about-link" data-i18n-id="t13" href="survey.html">→ Survey Article (Issue 01)</a>
+<a class="about-link" data-i18n-id="t14" href="ontology.html">→ Ontology Special Report (Issue 02)</a>
+</div>
+</div>
+</div>
 </main>
-
 <footer>
-  <p>DA-Agent Survey · 由 Kira Chen 整理 · 2026年4月 · 基于公开学术论文及工业文档</p>
+<p data-i18n-id="t15">DA-Agent Survey · Compiled by Kira Chen · April 2026 · Based on public academic papers and industry documents</p>
 </footer>
 
-</body>
+<script id="i18n-data">
+(function() {
+  var TRANS = {
+    zh: {"t1": "数据分析 <em>Agent</em><br/>调研系列", "t2": "覆盖 Text-to-SQL、Compound AI 架构、Ontology 建模、开源生态、企业落地等核心议题。<br/>\n      由 Kira Chen 整理，聚焦 2024–2026 年最新研究与工业实践。", "t3": "数据分析 <em>Agent</em> 领域综述<br/>（2024–2026）", "t4": "覆盖 Text-to-SQL 演进三阶段、Compound AI 流水线、语义层防幻觉机制、开源生态全景、准确率断崖（Spider 2.0 真实企业场景 10.1%），以及 L4 自主化趋势研判。", "t5": "开源生态", "t6": "<em>Ontology</em> 建模在<br/>Data Agent 领域的深入调研", "t7": "学术研究（Agent-OM、Neurosymbolic 约束推理）、开源项目（WrenAI、dbt MetricFlow、OrionBelt）、商业产品（Databricks/Snowflake/Fabric/Timbr）全景，附业界共识定量证据。", "t8": "Gartner 共识", "t9": "关于这个系列", "t10": "本系列由 Kira Chen（TrickleAI/HappyCapy CTO）整理，基于 arXiv 论文、GitHub 开源项目、Gartner 报告及工业界产品文档综合分析，聚焦 Data Agent 领域的技术前沿与工程落地。", "t11": "相关链接", "t12": "↗ GitHub 仓库", "t13": "→ 综述文章（第01篇）", "t14": "→ Ontology 专项报告（第02篇）", "t15": "DA-Agent Survey · 由 Kira Chen 整理 · 2026年4月 · 基于公开学术论文及工业文档", "t16": "DA-Agent Survey · 数据分析 Agent 调研系列"},
+    en: {"t1": "Data Analytics <em>Agent</em><br/>Research Series", "t2": "Covering core topics including Text-to-SQL, Compound AI architecture, Ontology modeling, open-source ecosystem, and enterprise deployment.<br/>\n      Compiled by Kira Chen, focusing on the latest research and industrial practices from 2024–2026.", "t3": "Data Analytics <em>Agent</em> Domain Survey<br/>(2024–2026)", "t4": "Covering the three stages of Text-to-SQL evolution, Compound AI pipelines, semantic layer anti-hallucination mechanisms, open-source ecosystem landscape, accuracy cliff (Spider 2.0 real enterprise scenario 10.1%), and L4 autonomy trend analysis.", "t5": "Open-Source Ecosystem", "t6": "In-Depth Research on <em>Ontology</em> Modeling<br/>in the Data Agent Domain", "t7": "A comprehensive landscape of academic research (Agent-OM, Neurosymbolic constraint reasoning), open-source projects (WrenAI, dbt MetricFlow, OrionBelt), and commercial products (Databricks/Snowflake/Fabric/Timbr), with quantitative evidence of industry consensus.", "t8": "Gartner Consensus", "t9": "About This Series", "t10": "This series is compiled by Kira Chen (TrickleAI/HappyCapy CTO), based on comprehensive analysis of arXiv papers, GitHub open-source projects, Gartner reports, and industry product documentation, focusing on the technical frontier and engineering implementation of the Data Agent domain.", "t11": "Related Links", "t12": "↗ GitHub Repository", "t13": "→ Survey Article (Issue 01)", "t14": "→ Ontology Special Report (Issue 02)", "t15": "DA-Agent Survey · Compiled by Kira Chen · April 2026 · Based on public academic papers and industry documents", "t16": "DA-Agent Survey · Data Analytics Agent Research Series"}
+  };
+
+  function applyLang(lang) {
+    document.documentElement.setAttribute('data-lang', lang);
+    document.querySelectorAll('[data-i18n-id]').forEach(function(el) {
+      var key = el.getAttribute('data-i18n-id');
+      var content = TRANS[lang] && TRANS[lang][key];
+      if (content !== undefined && content !== null) {
+        el.innerHTML = content;
+      }
+    });
+    // Update button text
+    document.querySelectorAll('.lang-toggle-btn').forEach(function(btn) {
+      btn.innerHTML = lang === 'en'
+        ? '<span class="lang-active">EN</span> / ZH'
+        : 'EN / <span class="lang-active">ZH</span>';
+    });
+    // Update html lang attribute
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+    try { localStorage.setItem('da-survey-lang', lang); } catch(e) {}
+  }
+
+  window.toggleLang = function() {
+    var current = document.documentElement.getAttribute('data-lang') || 'en';
+    applyLang(current === 'en' ? 'zh' : 'en');
+  };
+
+  // Initialize on load
+  document.addEventListener('DOMContentLoaded', function() {
+    var saved = null;
+    try { saved = localStorage.getItem('da-survey-lang'); } catch(e) {}
+    applyLang(saved || 'en');
+  });
+})();
+</script></body>
 </html>
