@@ -547,8 +547,8 @@ footer p {
     });
     document.querySelectorAll(".lang-toggle-btn").forEach(function(btn) {
       btn.innerHTML = lang === "en"
-        ? "<span class="lang-active">EN</span> / ZH"
-        : "EN / <span class="lang-active">ZH</span>";
+        ? '<span class="lang-active">EN</span> / ZH'
+        : 'EN / <span class="lang-active">ZH</span>';
     });
     document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
     try { localStorage.setItem("da-survey-lang", lang); } catch(e) {}
