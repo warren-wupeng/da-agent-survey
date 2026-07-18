@@ -184,6 +184,7 @@ h1.index-title em { font-style: italic; color: var(--cyan); }
 
 .article-card:nth-child(1) { animation-delay: 0.6s; }
 .article-card:nth-child(2) { animation-delay: 0.75s; }
+.article-card:nth-child(3) { animation-delay: 0.9s; }
 
 .article-card:hover {
   transform: translateY(-4px);
@@ -195,6 +196,9 @@ h1.index-title em { font-style: italic; color: var(--cyan); }
 
 .article-card.article-new { border-color: rgba(167,139,250,0.2); }
 .article-card.article-new:hover { border-color: rgba(167,139,250,0.5); box-shadow: 0 12px 40px rgba(167,139,250,0.08); }
+
+.article-card.article-cost { border-color: rgba(16,217,138,0.2); }
+.article-card.article-cost:hover { border-color: rgba(16,217,138,0.5); box-shadow: 0 12px 40px rgba(16,217,138,0.08); }
 
 .article-card::after {
   content: '';
@@ -210,6 +214,16 @@ h1.index-title em { font-style: italic; color: var(--cyan); }
   background: radial-gradient(circle at top right, rgba(167,139,250,0.07), transparent 70%);
 }
 
+.article-card.article-cost::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 60px; height: 60px;
+  background: radial-gradient(circle at top right, rgba(16,217,138,0.07), transparent 70%);
+  border-radius: 0 10px 0 0;
+  pointer-events: none;
+}
+
 .card-series {
   font-family: var(--font-mono);
   font-size: 0.62rem;
@@ -221,6 +235,7 @@ h1.index-title em { font-style: italic; color: var(--cyan); }
 
 .card-number { font-family: var(--font-mono); font-size: 0.62rem; color: var(--cyan); margin-right: 0.5rem; }
 .article-card.article-new .card-number { color: var(--purple); }
+.article-card.article-cost .card-number { color: var(--green); }
 
 .card-title {
   font-family: var(--font-display);
@@ -234,6 +249,7 @@ h1.index-title em { font-style: italic; color: var(--cyan); }
 
 .card-title em { font-style: italic; color: var(--cyan); }
 .article-card.article-new .card-title em { color: var(--purple); }
+.article-card.article-cost .card-title em { color: var(--green); }
 
 .card-desc {
   font-size: 0.84rem;
@@ -271,6 +287,12 @@ h1.index-title em { font-style: italic; color: var(--cyan); }
   color: var(--purple);
 }
 
+.article-card.article-cost .card-tag {
+  background: rgba(16,217,138,0.07);
+  border-color: rgba(16,217,138,0.15);
+  color: var(--green);
+}
+
 .card-read-btn {
   font-family: var(--font-mono);
   font-size: 0.68rem;
@@ -281,6 +303,7 @@ h1.index-title em { font-style: italic; color: var(--cyan); }
 }
 
 .article-card.article-new .card-read-btn { color: var(--purple); }
+.article-card.article-cost .card-read-btn { color: var(--green); }
 .article-card:hover .card-read-btn { letter-spacing: 0.05em; }
 
 .card-date {
@@ -413,8 +436,8 @@ footer p {
 <p class="index-desc" data-i18n-id="t2">Covering core topics including Text-to-SQL, Compound AI architecture, Ontology modeling, open-source ecosystem, and enterprise deployment.<br/>
       Compiled by Kira Chen, focusing on the latest research and industrial practices from 2024–2026.</p>
 <div class="index-meta">
-<div class="index-meta-item"><span>2</span> 篇文章</div>
-<div class="index-meta-item"><span>2026.04</span> 最后更新</div>
+<div class="index-meta-item"><span>3</span> <span data-i18n-id="t17">篇文章</span></div>
+<div class="index-meta-item"><span>2026.07</span> <span data-i18n-id="t18">最后更新</span></div>
 <div class="index-meta-item"><span>GitHub Pages</span> 公开发布</div>
 </div>
 </div>
@@ -451,6 +474,22 @@ footer p {
 <div class="card-read-btn">阅读 →</div>
 </div>
 </a>
+<a class="article-card article-cost" href="cost.html">
+<div class="new-badge">NEW</div>
+<div class="card-series"><span class="card-number">03</span> <span data-i18n-id="t19">成本与经济性</span></div>
+<div class="card-date">2026年7月 · 新增</div>
+<h2 class="card-title" data-i18n-id="t20">LLM Cost Optimization for <em>Data Agents</em><br/>2026 Technical Landscape</h2>
+<p class="card-desc" data-i18n-id="t21">Comparing Databricks Genie's dual-billing cost structure against the latest token optimization techniques from academia and industry — prompt caching, model routing, schema retrieval, semantic caching, and agent plan caching — with concrete implementation paths mapped to the GDA architecture. Conservative estimate: 80–90% per-query savings.</p>
+<div class="card-footer">
+<div class="card-tags">
+<span class="card-tag">Cost Optimization</span>
+<span class="card-tag">Prompt Caching</span>
+<span class="card-tag">Model Routing</span>
+<span class="card-tag" data-i18n-id="t22">LLM Economics</span>
+</div>
+<div class="card-read-btn" data-i18n-id="t23">阅读 →</div>
+</div>
+</a>
 </div>
 <div class="about-section">
 <div class="about-block">
@@ -474,8 +513,8 @@ footer p {
 <script id="i18n-data">
 (function() {
   var TRANS = {
-    zh: {"t1": "数据分析 <em>Agent</em><br/>调研系列", "t2": "覆盖 Text-to-SQL、Compound AI 架构、Ontology 建模、开源生态、企业落地等核心议题。<br/>\n      由 Kira Chen 整理，聚焦 2024–2026 年最新研究与工业实践。", "t3": "数据分析 <em>Agent</em> 领域综述<br/>（2024–2026）", "t4": "覆盖 Text-to-SQL 演进三阶段、Compound AI 流水线、语义层防幻觉机制、开源生态全景、准确率断崖（Spider 2.0 真实企业场景 10.1%），以及 L4 自主化趋势研判。", "t5": "开源生态", "t6": "<em>Ontology</em> 建模在<br/>Data Agent 领域的深入调研", "t7": "学术研究（Agent-OM、Neurosymbolic 约束推理）、开源项目（WrenAI、dbt MetricFlow、OrionBelt）、商业产品（Databricks/Snowflake/Fabric/Timbr）全景，附业界共识定量证据。", "t8": "Gartner 共识", "t9": "关于这个系列", "t10": "本系列由 Kira Chen（TrickleAI/HappyCapy CTO）整理，基于 arXiv 论文、GitHub 开源项目、Gartner 报告及工业界产品文档综合分析，聚焦 Data Agent 领域的技术前沿与工程落地。", "t11": "相关链接", "t12": "↗ GitHub 仓库", "t13": "→ 综述文章（第01篇）", "t14": "→ Ontology 专项报告（第02篇）", "t15": "DA-Agent Survey · 由 Kira Chen 整理 · 2026年4月 · 基于公开学术论文及工业文档", "t16": "DA-Agent Survey · 数据分析 Agent 调研系列"},
-    en: {"t1": "Data Analytics <em>Agent</em><br/>Research Series", "t2": "Covering core topics including Text-to-SQL, Compound AI architecture, Ontology modeling, open-source ecosystem, and enterprise deployment.<br/>\n      Compiled by Kira Chen, focusing on the latest research and industrial practices from 2024–2026.", "t3": "Data Analytics <em>Agent</em> Domain Survey<br/>(2024–2026)", "t4": "Covering the three stages of Text-to-SQL evolution, Compound AI pipelines, semantic layer anti-hallucination mechanisms, open-source ecosystem landscape, accuracy cliff (Spider 2.0 real enterprise scenario 10.1%), and L4 autonomy trend analysis.", "t5": "Open-Source Ecosystem", "t6": "In-Depth Research on <em>Ontology</em> Modeling<br/>in the Data Agent Domain", "t7": "A comprehensive landscape of academic research (Agent-OM, Neurosymbolic constraint reasoning), open-source projects (WrenAI, dbt MetricFlow, OrionBelt), and commercial products (Databricks/Snowflake/Fabric/Timbr), with quantitative evidence of industry consensus.", "t8": "Gartner Consensus", "t9": "About This Series", "t10": "This series is compiled by Kira Chen (TrickleAI/HappyCapy CTO), based on comprehensive analysis of arXiv papers, GitHub open-source projects, Gartner reports, and industry product documentation, focusing on the technical frontier and engineering implementation of the Data Agent domain.", "t11": "Related Links", "t12": "↗ GitHub Repository", "t13": "→ Survey Article (Issue 01)", "t14": "→ Ontology Special Report (Issue 02)", "t15": "DA-Agent Survey · Compiled by Kira Chen · April 2026 · Based on public academic papers and industry documents", "t16": "DA-Agent Survey · Data Analytics Agent Research Series"}
+    zh: {"t1": "数据分析 <em>Agent</em><br/>调研系列", "t2": "覆盖 Text-to-SQL、Compound AI 架构、Ontology 建模、开源生态、企业落地等核心议题。<br/>\n      由 Kira Chen 整理，聚焦 2024–2026 年最新研究与工业实践。", "t3": "数据分析 <em>Agent</em> 领域综述<br/>（2024–2026）", "t4": "覆盖 Text-to-SQL 演进三阶段、Compound AI 流水线、语义层防幻觉机制、开源生态全景、准确率断崖（Spider 2.0 真实企业场景 10.1%），以及 L4 自主化趋势研判。", "t5": "开源生态", "t6": "<em>Ontology</em> 建模在<br/>Data Agent 领域的深入调研", "t7": "学术研究（Agent-OM、Neurosymbolic 约束推理）、开源项目（WrenAI、dbt MetricFlow、OrionBelt）、商业产品（Databricks/Snowflake/Fabric/Timbr）全景，附业界共识定量证据。", "t8": "Gartner 共识", "t9": "关于这个系列", "t10": "本系列由 Kira Chen（TrickleAI/HappyCapy CTO）整理，基于 arXiv 论文、GitHub 开源项目、Gartner 报告及工业界产品文档综合分析，聚焦 Data Agent 领域的技术前沿与工程落地。", "t11": "相关链接", "t12": "↗ GitHub 仓库", "t13": "→ 综述文章（第01篇）", "t14": "→ Ontology 专项报告（第02篇）", "t15": "DA-Agent Survey · 由 Kira Chen 整理 · 2026年4月 · 基于公开学术论文及工业文档", "t16": "DA-Agent Survey · 数据分析 Agent 调研系列", "t17": "篇文章", "t18": "最后更新", "t19": "成本与经济性", "t20": "LLM 成本优化：<em>Data Agent</em><br/>2026 技术全景", "t21": "对比 Databricks Genie 的双重计费结构与最新的学术和工业 token 优化技术——提示缓存、模型路由、Schema 检索、语义缓存和 Agent 计划缓存——并给出映射到 GDA 架构的具体落地路径。保守估算：单次查询节省 80-90%。", "t22": "LLM 经济学", "t23": "阅读 →"},
+    en: {"t1": "Data Analytics <em>Agent</em><br/>Research Series", "t2": "Covering core topics including Text-to-SQL, Compound AI architecture, Ontology modeling, open-source ecosystem, and enterprise deployment.<br/>\n      Compiled by Kira Chen, focusing on the latest research and industrial practices from 2024–2026.", "t3": "Data Analytics <em>Agent</em> Domain Survey<br/>(2024–2026)", "t4": "Covering the three stages of Text-to-SQL evolution, Compound AI pipelines, semantic layer anti-hallucination mechanisms, open-source ecosystem landscape, accuracy cliff (Spider 2.0 real enterprise scenario 10.1%), and L4 autonomy trend analysis.", "t5": "Open-Source Ecosystem", "t6": "In-Depth Research on <em>Ontology</em> Modeling<br/>in the Data Agent Domain", "t7": "A comprehensive landscape of academic research (Agent-OM, Neurosymbolic constraint reasoning), open-source projects (WrenAI, dbt MetricFlow, OrionBelt), and commercial products (Databricks/Snowflake/Fabric/Timbr), with quantitative evidence of industry consensus.", "t8": "Gartner Consensus", "t9": "About This Series", "t10": "This series is compiled by Kira Chen (TrickleAI/HappyCapy CTO), based on comprehensive analysis of arXiv papers, GitHub open-source projects, Gartner reports, and industry product documentation, focusing on the technical frontier and engineering implementation of the Data Agent domain.", "t11": "Related Links", "t12": "↗ GitHub Repository", "t13": "→ Survey Article (Issue 01)", "t14": "→ Ontology Special Report (Issue 02)", "t15": "DA-Agent Survey · Compiled by Kira Chen · April 2026 · Based on public academic papers and industry documents", "t16": "DA-Agent Survey · Data Analytics Agent Research Series", "t17": "Articles", "t18": "Last Updated", "t19": "Cost & Economics", "t20": "LLM Cost Optimization for <em>Data Agents</em><br/>2026 Technical Landscape", "t21": "Comparing Databricks Genie's dual-billing cost structure against the latest token optimization techniques from academia and industry — prompt caching, model routing, schema retrieval, semantic caching, and agent plan caching — with concrete implementation paths mapped to the GDA architecture. Conservative estimate: 80–90% per-query savings.", "t22": "LLM Economics", "t23": "Read →"}
   };
 
   function applyLang(lang) {
