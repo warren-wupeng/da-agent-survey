@@ -329,11 +329,10 @@ footer p {
 <div class="article-series"><span class="num">03</span> <span data-i18n-id="t203">成本与经济性</span></div>
 <div class="article-date" data-i18n-id="t204">2026年7月 · 新增</div>
 <h1 class="article-title" data-i18n-id="t205">LLM Cost Optimization for <em>Data Agents</em><br/>2026 Technical Landscape</h1>
-<p class="article-desc" data-i18n-id="t206">Comparing Databricks Genie's cost structure against the latest academic and industrial token optimization techniques — prompt caching, model routing, schema retrieval, semantic caching, and agent plan caching — with a concrete implementation roadmap mapped to the General Data Agent architecture.</p>
+<p class="article-desc" data-i18n-id="t206">Comparing Databricks Genie's cost structure against the latest academic and industrial token optimization techniques — prompt caching, model routing, schema retrieval, semantic caching, and agent plan caching — with quantitative savings estimates and architectural principles for building cost-aware data agents.</p>
 <div class="article-meta">
-<div class="index-meta-item"><span>5</span> <span data-i18n-id="t207">技术层</span></div>
-<div class="index-meta-item"><span>6</span> <span data-i18n-id="t208">落地路径</span></div>
-<div class="index-meta-item"><span>2026.07</span> <span data-i18n-id="t209">编译</span></div>
+<div class="index-meta-item"><span>5</span> <span data-i18n-id="t207">优化层</span></div>
+<div class="index-meta-item"><span>2026.07</span> <span data-i18n-id="t208">编译</span></div>
 </div>
 </div>
 
@@ -474,88 +473,35 @@ footer p {
 
 <!-- ═══ Section 5 ═══ -->
 <div class="content-section">
-<h2><span class="num">05</span> <span data-i18n-id="t262">GDA Implementation Roadmap</span></h2>
+<h2><span class="num">05</span> <span data-i18n-id="t262">Cost-Aware Architecture Principles</span></h2>
 
-<p data-i18n-id="t263">These techniques are not theoretical — each maps to existing GDA code infrastructure. Here are the concrete integration paths, ordered by effort-to-impact ratio:</p>
+<p data-i18n-id="t263">Beyond individual techniques, the research points to a deeper architectural insight: <strong>cost optimization must be designed in, not bolted on</strong>. Systems that treat cost as an afterthought inevitably converge to linear cost growth with adoption. Systems that design for cost-awareness from day one can achieve marginal cost decline.</p>
 
-<h3 data-i18n-id="t264">Level 1: Schema-Aware Prompt Caching (immediate)</h3>
-<p data-i18n-id="t265"><strong>Existing infrastructure:</strong> <code>src/services/discover.ts</code> (UC schema auto-discovery), <code>src/commands/genie.ts</code> (metric view queries), <code>src/agent/llm.ts</code> (LLM calls).</p>
-<p data-i18n-id="t266"><strong>Action:</strong> Structure system prompt + tool schemas + per-tenant UC metadata in the prompt prefix with cache breakpoints. Each tenant's schema is relatively static — subsequent conversations pay only for user question tokens.</p>
-<p data-i18n-id="t267"><strong>Expected:</strong> 90% input cost reduction. Genie equivalent: rebuilds knowledge context per query — no prefix caching.</p>
+<h3 data-i18n-id="t264">Principle 1: Cache What's Static, Compute What's New</h3>
+<p data-i18n-id="t265">The highest-leverage architectural decision is separating static from dynamic context. System prompts, tool schemas, and domain metadata change infrequently — cache them aggressively at the provider level (90%+ discount). User questions and query results are the only genuinely incremental cost per interaction. A well-structured agent architecture should target <strong>&gt;80% of input tokens served from cache</strong> in steady state.</p>
 
-<h3 data-i18n-id="t268">Level 2: Multi-Tier Model Routing (architecture advantage)</h3>
-<p data-i18n-id="t269"><strong>Existing infrastructure:</strong> <code>src/services/llm-config.ts</code> (per-tenant model config), <code>config.ts</code> (<code>llm.model</code> + <code>llm.miniModel</code> dual slots), <code>src/agent/loop.ts</code> (agent execution loop).</p>
-<p data-i18n-id="t270"><strong>Action:</strong> Add complexity classifier in agent loop — SQL generation attempts budget model first; syntax validation failure triggers cascading to frontier. Simple fact lookups, glossary queries, and status checks never need frontier models.</p>
-<p data-i18n-id="t271"><strong>Expected routing:</strong> 80% budget / 15% mid / 5% frontier. <strong>Key advantage over Genie:</strong> Genie's 4-agent pipeline is architecturally fixed; GDA can route per-query.</p>
+<h3 data-i18n-id="t266">Principle 2: Route by Complexity, Not by Default</h3>
+<p data-i18n-id="t267">The 50× price spread between budget and frontier models invalidates any architecture that routes all queries to a single model tier. A cost-aware agent must classify query complexity before model selection. Production data shows <strong>75–85% of traffic resolves at the budget tier</strong> after tuning, with &lt;5% requiring frontier capability. The key engineering challenge is building a classifier cheap enough that its own cost doesn't erode the savings — heuristic and embedding-based classifiers operating in &lt;1ms achieve this.</p>
 
-<h3 data-i18n-id="t272">Level 3: Context-Aware Schema Injection</h3>
-<p data-i18n-id="t273"><strong>Existing infrastructure:</strong> <code>src/services/discover.ts</code> (UC metadata), <code>src/commands/genie.ts</code> (dynamic metric query builder).</p>
-<p data-i18n-id="t274"><strong>Action:</strong> Replace full-schema injection with semantic retrieval — embed the user question, retrieve only relevant tables/columns/metric views. Validated by AriaSQL (95% prompt reduction at 72.5% accuracy on 107 tables).</p>
-<p data-i18n-id="t275"><strong>Key advantage over Genie:</strong> Genie caps at 30 tables per Agent. GDA can span more tables with <em>smaller</em> prompts via dynamic retrieval.</p>
+<h3 data-i18n-id="t268">Principle 3: Retrieve Schema, Don't Inject It</h3>
+<p data-i18n-id="t269">For Text-to-SQL agents, the largest source of token waste is full-schema injection. 100+ table databases generate prompts exceeding 40K tokens before the user question is even added. Semantic retrieval — embedding the question and fetching only the top-K relevant tables, columns, and metric definitions — reduces schema context by <strong>50–95%</strong> while often <em>improving</em> accuracy by reducing noise. This is validated across multiple independent benchmarks (AriaSQL, Mosaic MCP, IEEE 2026).</p>
 
-<h3 data-i18n-id="t276">Level 4: SLM-First Text-to-SQL</h3>
-<p data-i18n-id="t277"><strong>Action:</strong> DeepSeek V4 Flash first → syntax validation → result sanity check → cascade to frontier only on failure. IEEE 2026: $0.0085/query vs $0.094 LLM-only.</p>
+<h3 data-i18n-id="t270">Principle 4: Cache Responses with Tenant Awareness</h3>
+<p data-i18n-id="t271">In multi-tenant data agent deployments, users within the same organization frequently ask semantically similar questions. Embedding-based semantic caching (cosine similarity &gt; 0.8) can achieve <strong>15–45% hit rates</strong> in production, with each hit eliminating the entire LLM + SQL execution pipeline. The critical design constraint: cache keys must include tenant identity to prevent cross-tenant data leakage.</p>
 
-<h3 data-i18n-id="t278">Level 5: Tenant-Aware Semantic Caching</h3>
-<p data-i18n-id="t279"><strong>Action:</strong> Embedding-based response cache in agent-api layer. Cache key = <code>tenant_id + query_embedding</code>. Expected steady-state hit rate: 15–25% for analytics queries.</p>
+<h3 data-i18n-id="t272">Principle 5: Design for Marginal Cost Decline</h3>
+<p data-i18n-id="t273">The defining characteristic of a cost-aware agent architecture is the <strong>shape of its cost curve</strong>. A system with effective caching, routing, and retrieval gets cheaper per query as it learns query patterns. A system without these — like a fixed multi-agent pipeline running on serverless infrastructure — gets more expensive per query as the user base grows. The architectural goal is not a one-time cost reduction but a <strong>sustainable cost trajectory</strong> that makes data AI affordable at enterprise scale.</p>
 
-<h3 data-i18n-id="t280">Level 6: Batch Offline Workloads</h3>
-<p data-i18n-id="t281"><strong>Existing infrastructure:</strong> <code>eval/</code> offline evaluation framework. Nightly regression runs, synthetic data generation, and freshness checks → batch API at 50% discount.</p>
+<div class="callout">
+<p data-i18n-id="t274"><strong>Combined target:</strong> Applying all five principles — prefix caching (90%) + model routing (60–95%) + schema retrieval (50–95%) + semantic caching (15–45% hit rate) + batch for offline workloads (50%) — a well-architected data agent can achieve per-query costs at <strong>5–20% of a naive frontier-model-only approach</strong>, with the gap widening as adoption scales.</p>
+</div>
 </div>
 
 <!-- ═══ Section 6 ═══ -->
 <div class="content-section">
-<h2><span class="num">06</span> <span data-i18n-id="t282">GDA vs. Genie: Cost Model Comparison</span></h2>
+<h2><span class="num">06</span> <span data-i18n-id="t275">Key References</span></h2>
 
-<table>
-<thead><tr><th data-i18n-id="t283">Optimization Layer</th><th data-i18n-id="t284">Genie's Approach</th><th data-i18n-id="t285">GDA's Approach</th><th data-i18n-id="t286">Savings</th></tr></thead>
-<tbody>
-<tr><td data-i18n-id="t287">Schema Injection</td><td data-i18n-id="t288">Full knowledge store + 30-table static cap</td><td data-i18n-id="t289">Semantic retrieval of relevant schema subset</td><td>50–95% prompt tokens</td></tr>
-<tr><td data-i18n-id="t290">Prompt Prefix</td><td data-i18n-id="t291">Rebuilds knowledge context per query</td><td data-i18n-id="t292">System prompt + tool schema prefix cached</td><td>90% input cost</td></tr>
-<tr><td data-i18n-id="t293">Model Selection</td><td data-i18n-id="t294">Fixed 4-agent pipeline (all queries)</td><td data-i18n-id="t295">80% budget / 15% mid / 5% frontier cascade</td><td>60–80% LLM cost</td></tr>
-<tr><td data-i18n-id="t296">Repeat Queries</td><td data-i18n-id="t297">Full pipeline re-execution</td><td data-i18n-id="t298">Semantic cache → direct return</td><td>100% (on hit)</td></tr>
-<tr><td data-i18n-id="t299">Offline Workloads</td><td data-i18n-id="t300">Real-time API</td><td data-i18n-id="t301">Batch API</td><td>50%</td></tr>
-<tr><td data-i18n-id="t302">SQL Execution</td><td data-i18n-id="t303">Serverless SQL ~$0.70–0.90/DBU</td><td data-i18n-id="t304">Configurable (Pro tier option)</td><td data-i18n-id="t305">Depends on config</td></tr>
-</tbody>
-</table>
-
-<div class="callout">
-<p data-i18n-id="t306"><strong>Conservative estimate:</strong> Combining Layers 1–3 (schema retrieval + prompt caching + model routing), GDA achieves per-query costs at <strong>10–20% of Genie's equivalent</strong>.</p>
-</div>
-
-<div class="callout">
-<p data-i18n-id="t307"><strong>Aggressive estimate:</strong> Full stack (adding SLM-first + semantic caching + batch), per-query costs drop to <strong>&lt;5% of Genie</strong>.</p>
-</div>
-</div>
-
-<!-- ═══ Section 7 ═══ -->
-<div class="content-section">
-<h2><span class="num">07</span> <span data-i18n-id="t308">Architectural Cost Dynamics</span></h2>
-
-<p data-i18n-id="t309">The fundamental difference is not "which model is cheaper" — it's the <strong>shape of the cost curve</strong> as adoption scales:</p>
-
-<table>
-<thead><tr><th data-i18n-id="t310">Dimension</th><th data-i18n-id="t311">Databricks Genie</th><th data-i18n-id="t312">General Data Agent</th></tr></thead>
-<tbody>
-<tr><td data-i18n-id="t313"><strong>Cost model</strong></td><td data-i18n-id="t314">Linear growth (per query × per user)</td><td data-i18n-id="t315">Marginal decline (cache + learning + reuse)</td></tr>
-<tr><td data-i18n-id="t316"><strong>Model strategy</strong></td><td data-i18n-id="t317">Fixed multi-LLM pipeline</td><td data-i18n-id="t318">Dynamic routing by complexity</td></tr>
-<tr><td data-i18n-id="t319"><strong>Context management</strong></td><td data-i18n-id="t320">Static knowledge store per agent</td><td data-i18n-id="t321">Dynamic schema retrieval + prefix caching</td></tr>
-<tr><td data-i18n-id="t322"><strong>Scale effect</strong></td><td data-i18n-id="t323">More users = higher cost</td><td data-i18n-id="t324">More users = warmer caches = lower marginal cost</td></tr>
-<tr><td data-i18n-id="t325"><strong>Cost predictability</strong></td><td data-i18n-id="t326">High variance (query phrasing 20× swing)</td><td data-i18n-id="t327">Capped by tiered routing + schema guardrails</td></tr>
-<tr><td data-i18n-id="t328"><strong>Per-tenant attribution</strong></td><td data-i18n-id="t329">No built-in tenant-level billing</td><td data-i18n-id="t330">Per-tenant token tracking + cost breakdown</td></tr>
-</tbody>
-</table>
-
-<div class="callout callout-amber">
-<p data-i18n-id="t331"><strong>Product narrative:</strong> GDA doesn't compete with Genie on features — it competes on <em>economics</em>. Its cost-aware architecture makes data AI affordable at enterprise BU scale. Genie gets more expensive as you succeed; GDA gets cheaper.</p>
-</div>
-</div>
-
-<!-- ═══ Section 8 ═══ -->
-<div class="content-section">
-<h2><span class="num">08</span> <span data-i18n-id="t332">Key References</span></h2>
-
-<h3 data-i18n-id="t333">Academic Papers</h3>
+<h3 data-i18n-id="t276">Academic Papers</h3>
 <ul>
 <li>TRL Token-Reduction Layer (2026) — arXiv:2604.12301</li>
 <li>Agent Plan Caching (2026) — arXiv:2506.14852</li>
@@ -568,7 +514,7 @@ footer p {
 <li>Mosaic MCP Semantic Layer Benchmark (2026) — Strategy.com</li>
 </ul>
 
-<h3 data-i18n-id="t334">Industry & Tools</h3>
+<h3 data-i18n-id="t277">Industry & Tools</h3>
 <ul>
 <li>Databricks Genie Pricing (July 2026 changes) — docs.databricks.com</li>
 <li>WisdomAI Genie Review & Pricing Analysis (2026)</li>
@@ -583,7 +529,7 @@ footer p {
 </main>
 
 <footer>
-<p data-i18n-id="t335">DA-Agent Survey · Compiled by Kira Chen &amp; Zoey Shen · July 2026 · Based on public academic papers and industry documents</p>
+<p data-i18n-id="t278">DA-Agent Survey · Compiled by Kira Chen · July 2026 · Based on public academic papers and industry documents</p>
 </footer>
 
 <script>
@@ -596,24 +542,23 @@ footer p {
       "t203": "成本与经济性",
       "t204": "2026年7月 · 新增",
       "t205": "LLM 成本优化：<em>Data Agent</em><br/>2026 技术全景",
-      "t206": "对比 Databricks Genie 的成本结构与最新的学术和工业 token 优化技术——提示缓存、模型路由、Schema 检索、语义缓存和 Agent 计划缓存——并给出映射到 General Data Agent 架构的具体落地路径。",
-      "t207": "技术层",
-      "t208": "落地路径",
-      "t209": "编译",
+      "t206": "对比 Databricks Genie 的成本结构与最新的学术和工业 token 优化技术——提示缓存、模型路由、Schema 检索、语义缓存和 Agent 计划缓存——附定量节省估算和构建成本感知型 Data Agent 的架构原则。",
+      "t207": "优化层",
+      "t208": "编译",
       "t210": "Genie 为什么贵",
       "t211": "Databricks Genie 的真实成本不是一个价格标签——它是一个<strong>双重计费结构</strong>，经常让团队措手不及：",
       "t212": "成本来源",
       "t213": "计价方式",
       "t214": "实际影响",
       "t215": "SQL Warehouse 计算",
-      "t216": "Serverless ~$0.70–0.90/DBU，按查询时长计费",
-      "t217": "一次没有时间范围的模糊提问可能扫描多年数据——每次 $1 以上。加了 30 天过滤后：约 $0.05。<strong>20 倍差异</strong>，取决于用户怎么问。",
+      "t216": "Serverless ~\/usr/bin/zsh.70–0.90/DBU，按查询时长计费",
+      "t217": "一次没有时间范围的模糊提问可能扫描多年数据——每次 \ 以上。加了 30 天过滤后：约 \/usr/bin/zsh.05。<strong>20 倍差异</strong>，取决于用户怎么问。",
       "t218": "LLM Token 消耗",
       "t219": "2026年7月起按量计费；每用户月免 150 DBU；service principal 零免额",
       "t220": "免费额度仅覆盖 LLM 部分——<strong>计算始终单独计费</strong>。通过 service principal 的自动化调用从第一个 DBU 起全额计费。",
       "t221": "五个成本黑洞",
       "t222": "<strong>无界查询</strong>：一个模糊的"显示销售趋势"扫描全部历史。同样的意图加上日期过滤成本降 20 倍。",
-      "t223": "<strong>追问乘数</strong>：每次追问（"改成柱状图"、"加同比"）是一个<em>新</em>查询。10 分钟对话 6 轮追问 = ~$1.20/人。50 用户 × 3 次/周 = <strong>~$800/月</strong>仅 casual exploration。",
+      "t223": "<strong>追问乘数</strong>：每次追问（"改成柱状图"、"加同比"）是一个<em>新</em>查询。10 分钟对话 6 轮追问 = ~\.20/人。50 用户 × 3 次/周 = <strong>~\/月</strong>仅 casual exploration。",
       "t224": "<strong>固定 multi-LLM 管线</strong>：Genie 每次查询跑 planning + search + code-generation + judge 四个 agent。即使是鸡毛蒜皮的问题也要 4-5 次 LLM 调用。",
       "t225": "<strong>Serverless 自动扩缩</strong>：用户越多 → warehouse 运行窗口越长 → DBU 按分钟燃烧。成本随采用<em>超线性</em>增长。",
       "t226": "<strong>预算不含计算费</strong>：Genie budgets 只跟踪 LLM 用量。SQL warehouse 账单单独追踪——没有统一的成本可见性。",
@@ -634,14 +579,14 @@ footer p {
       "t241": "<strong>经济学：</strong>50 次相同前缀的查询 → 1× 全价 + 49× 享受 1 折 = <strong>88% 总节省</strong>。80% 缓存命中率下，Anthropic 的实现等效吞吐量提升 5 倍（缓存 token 不计入 rate limit）。",
       "t242": "第二层：模型路由与级联 — 节省 60-95%",
       "t243": "将每个请求路由到能够处理它的最便宜模型。轻量分类器（启发式、嵌入或微调编码器）在 <1ms 内评分复杂度；简单任务永远不触及昂贵模型。",
-      "t244": "<strong>架构：</strong>请求 → 复杂度分类器 → 简单 → 预算模型 ($0.10-0.40/M) → 中等 → 中档 ($2-3/M) → 复杂 → 旗舰 ($5-15/M)",
+      "t244": "<strong>架构：</strong>请求 → 复杂度分类器 → 简单 → 预算模型 (\/usr/bin/zsh.10-0.40/M) → 中等 → 中档 (\-3/M) → 复杂 → 旗舰 (\-15/M)",
       "t245": "<strong>TRL Token-Reduction Layer</strong>（2026 论文）验证了复合节省：GPT-5.5 节省 86.8% 输入 token，Claude Opus 4.8 节省 87.4%，<strong>质量完全保持</strong>。调优后，75-85% 的生产流量在第一级（最便宜）解决。",
       "t246": "<strong>级联</strong>比路由更进一步：先试预算模型 → 置信度检查 → 仅在失败时升级。FrugalGPT 展示了在可靠验证器下最多 <strong>98% 成本降低</strong>且质量持平。",
       "t247": "第三层：Schema 检索优化 — 节省 50-95% 上下文",
       "t248": "Text-to-SQL 最大的 token 浪费是把整个数据库 schema 塞进每个 prompt。三个经过验证的方法：",
       "t249": "<strong>AriaSQL</strong>（107 表企业数据库）：BM25 + 稠密嵌入 + Reciprocal Rank Fusion + FK-graph 扩展 → <strong>95.3% prompt token 减少</strong>，72.5% 执行准确率。",
       "t250": "<strong>语义层</strong>（Mosaic MCP benchmark）：Schema 上下文从 4,428 压缩到 2,073 token（53%）→ 37% 成本降低 + <em>提升</em>复杂 JOIN 准确率（更少噪声 = 更好的 LLM 聚焦）。",
-      "t251": "<strong>SLM-first + LLM fallback</strong>（IEEE 2026）：67% 查询完全由本地小模型完成 → 异常检测 → 仅失败时调 LLM。<strong>$0.0085/查询 vs $0.094 LLM-only — 节省 91%。</strong>",
+      "t251": "<strong>SLM-first + LLM fallback</strong>（IEEE 2026）：67% 查询完全由本地小模型完成 → 异常检测 → 仅失败时调 LLM。<strong>\/usr/bin/zsh.0085/查询 vs \/usr/bin/zsh.094 LLM-only — 节省 91%。</strong>",
       "t252": "第四层：语义响应缓存 — 命中时 100% 节省",
       "t253": "通过语义相似度（embedding 匹配，cosine similarity &gt; 0.8）缓存 LLM 响应。生产命中率：FAQ/客服 40-60%，数据分析查询 15-25%。强制设计：缓存 key 必须包含 <code>tenant_id</code>，防止跨租户泄露。",
       "t254": "第五层：Agent 计划缓存 — 50% 成本 + 27% 延迟降低",
@@ -652,106 +597,48 @@ footer p {
       "t259": "这些技术针对不同瓶颈，<strong>组合时不重叠</strong>：",
       "t260": "缓存前缀（90%）× 路由到最便宜模型（60-95%）× 批处理非紧急任务（50%）× 压缩提示（5-20×）× 缓存响应（命中时 100%）= <strong>95-99% 总成本降低</strong> vs. naive frontier-model-only 方案。",
       "t261": "TRL 复合管道在有利 workload 上验证了 <strong>18.1 倍成本改善</strong>，品质 100% 保持。",
-      "t262": "GDA 落地路径",
-      "t263": "这些技术不是理论——每个都映射到 GDA 现有代码基础设施。以下是具体集成路径，按投入产出比排序：",
-      "t264": "Level 1: Schema-Aware Prompt Caching（即战力）",
-      "t265": "<strong>现有基础：</strong><code>src/services/discover.ts</code>（UC schema 自动发现）、<code>src/commands/genie.ts</code>（metric view 查询）、<code>src/agent/llm.ts</code>（LLM 调用）。",
-      "t266": "<strong>动作：</strong>将 system prompt + tool schema + per-tenant UC 元数据放在 prompt 前缀并设缓存断点。每个租户的 schema 相对固定——后续对话只对用户问题增量付费。",
-      "t267": "<strong>预期：</strong>90% 输入成本降低。Genie 对照：每次查询重建 knowledge context——无前缀缓存。",
-      "t268": "Level 2: Multi-Tier Model Routing（架构优势）",
-      "t269": "<strong>现有基础：</strong><code>src/services/llm-config.ts</code>（per-tenant 模型配置）、<code>config.ts</code>（<code>llm.model</code> + <code>llm.miniModel</code> 双槽位）、<code>src/agent/loop.ts</code>（agent 执行循环）。",
-      "t270": "<strong>动作：</strong>在 agent loop 加入复杂度判定——SQL 生成先试 budget 模型；语法校验失败触发级联到 frontier。简单事实查询、术语解释、状态检查永远不需要 frontier 模型。",
-      "t271": "<strong>预期路由比例：</strong>80% budget / 15% mid / 5% frontier。<strong>对 Genie 的关键优势：</strong>Genie 的 4-agent 管线在架构上是固定的；GDA 可以按查询动态路由。",
-      "t272": "Level 3: Context-Aware Schema Injection",
-      "t273": "<strong>现有基础：</strong><code>src/services/discover.ts</code>（UC 元数据）、<code>src/commands/genie.ts</code>（动态 metric query 构建器）。",
-      "t274": "<strong>动作：</strong>用语义检索替代全量 schema 注入——embed 用户问题，仅检索相关 table/column/metric view。AriaSQL 已验证（107 表 95% prompt 减少，72.5% 准确率）。",
-      "t275": "<strong>对 Genie 的关键优势：</strong>Genie 限制每 Agent 30 张表。GDA 可以跨更多表面 prompt 反而更小（动态检索 vs 静态限定）。",
-      "t276": "Level 4: SLM-First Text-to-SQL",
-      "t277": "<strong>动作：</strong>DeepSeek V4 Flash 首先生成 → 语法校验 → 结果合理性检查 → 仅失败时级联到 frontier。IEEE 2026：$0.0085/查询 vs $0.094 LLM-only。",
-      "t278": "Level 5: Tenant-Aware Semantic Caching",
-      "t279": "<strong>动作：</strong>在 agent-api 层加入 embedding-based 响应缓存。缓存 key = <code>tenant_id + query_embedding</code>。稳态命中率预期：数据分析查询 15-25%。",
-      "t280": "Level 6: Batch Offline Workloads",
-      "t281": "<strong>现有基础：</strong><code>eval/</code> 离线评估框架。Nightly regression runs、合成数据生成、freshness checks → batch API 50% 折扣。",
-      "t282": "GDA vs. Genie：成本模型对照",
-      "t283": "优化层",
-      "t284": "Genie 的做法",
-      "t285": "GDA 的优化",
-      "t286": "节省幅度",
-      "t287": "Schema 注入",
-      "t288": "全量 knowledge store + 30 表静态限制",
-      "t289": "语义检索仅注入相关 schema 子集",
-      "t290": "Prompt 前缀",
-      "t291": "每次查询重建 knowledge context",
-      "t292": "System prompt + tool schema 前缀缓存",
-      "t293": "模型选择",
-      "t294": "固定 4-agent 管线（每次查询）",
-      "t295": "80% budget / 15% mid / 5% frontier 级联",
-      "t296": "重复查询",
-      "t297": "完整管线重新执行",
-      "t298": "语义缓存 → 直接返回",
-      "t299": "离线 Workload",
-      "t300": "实时 API",
-      "t301": "Batch API",
-      "t302": "SQL 执行",
-      "t303": "Serverless SQL ~$0.70–0.90/DBU",
-      "t304": "可配置（可选 Pro tier）",
-      "t305": "取决于配置",
-      "t306": "<strong>保守估算：</strong>组合前三层（schema 检索 + prompt 缓存 + 模型路由），GDA 单次查询成本可做到 Genie 的 <strong>10-20%</strong>。",
-      "t307": "<strong>激进估算：</strong>全栈（加 SLM-first + 语义缓存 + batch），压到 Genie 的 <strong>&lt;5%</strong>。",
-      "t308": "架构成本动力学",
-      "t309": "根本差异不是"哪个模型更便宜"——而是采用规模扩大时<strong>成本曲线的形状</strong>：",
-      "t310": "维度",
-      "t311": "Databricks Genie",
-      "t312": "General Data Agent",
-      "t313": "<strong>成本模型</strong>",
-      "t314": "线性增长（per query × per user）",
-      "t315": "边际递减（缓存 + 学习 + 复用）",
-      "t316": "<strong>模型策略</strong>",
-      "t317": "固定 multi-LLM 管线",
-      "t318": "按复杂度动态路由",
-      "t319": "<strong>上下文管理</strong>",
-      "t320": "每 Agent 静态 knowledge store",
-      "t321": "动态 schema 检索 + 前缀缓存",
-      "t322": "<strong>规模效应</strong>",
-      "t323": "用户越多越贵",
-      "t324": "用户越多，缓存越热，边际成本越低",
-      "t325": "<strong>成本可预测性</strong>",
-      "t326": "方差大（查询措辞 20 倍波动）",
-      "t327": "分级路由 + schema 护栏封顶",
-      "t328": "<strong>Per-tenant 归因</strong>",
-      "t329": "无内置租户级账单",
-      "t330": "Per-tenant token 追踪 + 成本拆分",
-      "t331": "<strong>产品叙事：</strong>GDA 不跟 Genie 比功能——比<em>经济学</em>。它的成本感知架构让数据 AI 在企业 BU 规模下经济可行。Genie 越成功越贵；GDA 越成功越便宜。",
-      "t332": "关键参考文献",
-      "t333": "学术论文",
-      "t334": "产业与工具",
-      "t335": "DA-Agent Survey · 由 Kira Chen & Zoey Shen 整理 · 2026年7月 · 基于公开学术论文及工业文档"
+      "t262": "成本感知架构原则",
+      "t263": "超越单点技术，研究指向一个更深层的架构洞察：<strong>成本优化必须设计进去，不能事后打补丁</strong>。把成本当事后考虑的系统不可避免地收敛到线性成本增长。从第一天就设计成本感知的系统可以实现边际成本递减。",
+      "t264": "原则一：缓存静态内容，只计算增量",
+      "t265": "最高杠杆的架构决策是将静态与动态上下文分离。System prompt、tool schema 和领域元数据变化不频繁——在 provider 层面积极缓存（90%+ 折扣）。用户问题和查询结果是每次交互唯一真正的增量成本。一个设计良好的 agent 架构应在稳态下实现 <strong>&gt;80% 输入 token 从缓存服务</strong>。",
+      "t266": "原则二：按复杂度路由，而非默认统一",
+      "t267": "预算模型与旗舰模型之间 50 倍的价格差距，使任何将所有查询路由到单一模型层的架构都不经济。成本感知 agent 必须在模型选择前对查询复杂度进行分类。生产数据显示<strong>调优后 75-85% 流量在预算层解决</strong>，&lt;5% 需要旗舰能力。关键工程挑战是构建一个足够便宜的分类器，使其自身成本不侵蚀节省——启发式和嵌入分类器在 &lt;1ms 内完成，满足这一要求。",
+      "t268": "原则三：检索 Schema，不要全量注入",
+      "t269": "对 Text-to-SQL agent 而言，token 浪费的最大来源是全量 schema 注入。100+ 表的数据库在用户问题加入之前就产生超过 40K token 的 prompt。语义检索——embed 问题并仅获取 top-K 相关表、列和指标定义——将 schema 上下文减少 <strong>50-95%</strong>，同时往往因减少噪声而<em>提升</em>准确率。这已在多个独立基准测试中得到验证（AriaSQL、Mosaic MCP、IEEE 2026）。",
+      "t270": "原则四：缓存响应并感知租户",
+      "t271": "在多租户 Data Agent 部署中，同一组织内的用户经常问语义相似的问题。基于嵌入的语义缓存（cosine similarity &gt; 0.8）在生产中可实现 <strong>15-45% 命中率</strong>，每次命中消除整个 LLM + SQL 执行管线。关键设计约束：缓存 key 必须包含租户身份，防止跨租户数据泄露。",
+      "t272": "原则五：为边际成本递减而设计",
+      "t273": "成本感知 agent 架构的决定性特征是<strong>成本曲线的形状</strong>。具备有效缓存、路由和检索的系统，随着学习查询模式，每次查询越来越便宜。没有这些的系统——如在 serverless 基础设施上运行的固定 multi-agent 管线——随着用户基数增长，每次查询越来越贵。架构目标不是一次性成本降低，而是使数据 AI 在企业规模下经济可行的<strong>可持续成本轨迹</strong>。",
+      "t274": "<strong>组合目标：</strong>应用全部五项原则——前缀缓存（90%）+ 模型路由（60-95%）+ Schema 检索（50-95%）+ 语义缓存（15-45% 命中率）+ 离线 batch（50%）——一个架构良好的 Data Agent 可以实现每次查询成本为 naive frontier-model-only 方案的 <strong>5-20%</strong>，且差距随采用规模扩大而持续拉大。",
+      "t275": "关键参考文献",
+      "t276": "学术论文",
+      "t277": "产业与工具",
+      "t278": "DA-Agent Survey · 由 Kira Chen 整理 · 2026年7月 · 基于公开学术论文及工业文档"
     },
-    en: {
+en: {
       "t200": "LLM Cost Optimization for Data Agents — 2026 Technical Landscape",
       "t201": "Data Analytics Agent Research Series",
       "t202": "← Back to Index",
       "t203": "Cost & Economics",
       "t204": "July 2026 · New",
       "t205": "LLM Cost Optimization for <em>Data Agents</em><br/>2026 Technical Landscape",
-      "t206": "Comparing Databricks Genie's cost structure against the latest academic and industrial token optimization techniques — prompt caching, model routing, schema retrieval, semantic caching, and agent plan caching — with a concrete implementation roadmap mapped to the General Data Agent architecture.",
+      "t206": "Comparing Databricks Genie's cost structure against the latest academic and industrial token optimization techniques — prompt caching, model routing, schema retrieval, semantic caching, and agent plan caching — with quantitative savings estimates and architectural principles for building cost-aware data agents.",
       "t207": "Layers",
-      "t208": "Paths",
-      "t209": "Compiled",
+      "t208": "Compiled",
       "t210": "Why Genie Is Expensive",
       "t211": "Databricks Genie's true cost is not a single price tag — it's a <strong>dual billing structure</strong> that catches teams off guard:",
       "t212": "Cost Source",
       "t213": "Pricing",
       "t214": "Real-World Impact",
       "t215": "SQL Warehouse Compute",
-      "t216": "Serverless ~$0.70–0.90/DBU, billed per query duration",
-      "t217": "A vague query without time filter can scan years of data — $1+ per question. With a 30-day filter: ~$0.05. <strong>20× swing</strong> depending on how the user phrases the question.",
+      "t216": "Serverless ~\/usr/bin/zsh.70–0.90/DBU, billed per query duration",
+      "t217": "A vague query without time filter can scan years of data — \+ per question. With a 30-day filter: ~\/usr/bin/zsh.05. <strong>20× swing</strong> depending on how the user phrases the question.",
       "t218": "LLM Token Consumption",
       "t219": "Pay-as-you-go from July 2026; 150 free DBU/user/month; service principals get zero free allowance",
       "t220": "Free tier covers LLM only — <strong>compute is always separate</strong>. Automation calls via service principals are billed from the first DBU.",
       "t221": "Five Cost Black Holes",
-      "t222": "<strong>Unbounded queries</strong>: A vague \"show me sales trends\" scans all history. Identical intent with a date filter costs 20× less.",
-      "t223": "<strong>Follow-up multiplier</strong>: Each clarification (\"make it a bar chart\", \"add last year\") is a <em>new</em> query. A 10-minute session with 6 follow-ups = ~$1.20/person. 50 users × 3 sessions/week = <strong>~$800/month</strong> on casual exploration alone.",
+      "t222": "<strong>Unbounded queries</strong>: A vague "show me sales trends" scans all history. Identical intent with a date filter costs 20× less.",
+      "t223": "<strong>Follow-up multiplier</strong>: Each clarification ("make it a bar chart", "add last year") is a <em>new</em> query. A 10-minute session with 6 follow-ups = ~\.20/person. 50 users × 3 sessions/week = <strong>~\/month</strong> on casual exploration alone.",
       "t224": "<strong>Fixed multi-LLM pipeline</strong>: Genie runs planning + search + code-generation + judge agents on every query. Even trivial questions incur 4–5 LLM calls.",
       "t225": "<strong>Serverless auto-scaling</strong>: More users → longer warehouse uptime → DBUs burn by the minute. Costs scale <em>super-linearly</em> with adoption.",
       "t226": "<strong>Budgets exclude compute</strong>: Genie budgets only track LLM usage. The SQL warehouse bill is tracked separately — no unified cost observability.",
@@ -772,14 +659,14 @@ footer p {
       "t241": "<strong>Economics:</strong> 50 queries with identical prefix → 1× full price + 49× at 10% = <strong>88% total savings</strong>. At 80% cache hit rate, Anthropic's implementation effectively multiplies throughput by 5× since cached tokens don't count toward rate limits.",
       "t242": "Layer 2: Model Routing & Cascading — 60–95% Savings",
       "t243": "Route each request to the cheapest model capable of handling it. A lightweight classifier (heuristic, embedding-based, or fine-tuned encoder) scores complexity in &lt;1ms; simple tasks never reach expensive models.",
-      "t244": "<strong>Architecture:</strong> Request → Complexity classifier → Simple → Budget model ($0.10–0.40/M) → Medium → Mid-tier ($2–3/M) → Complex → Frontier ($5–15/M)",
+      "t244": "<strong>Architecture:</strong> Request → Complexity classifier → Simple → Budget model (\/usr/bin/zsh.10–0.40/M) → Medium → Mid-tier (\–3/M) → Complex → Frontier (\–15/M)",
       "t245": "The <strong>TRL Token-Reduction Layer</strong> (2026 paper) validated compound savings of 86.8% input tokens on GPT-5.5 and 87.4% on Claude Opus 4.8, with <strong>quality fully preserved</strong>. After tuning, 75–85% of production traffic resolves at the first (cheapest) tier.",
       "t246": "<strong>Cascading</strong> goes further than routing: try the budget model first → confidence check → escalate only on rejection. FrugalGPT demonstrated up to <strong>98% cost reduction</strong> at matched quality with a reliable verifier.",
       "t247": "Layer 3: Schema Retrieval Optimization — 50–95% Context Reduction",
       "t248": "Text-to-SQL's largest token waste is injecting the entire database schema into every prompt. Three proven approaches:",
       "t249": "<strong>AriaSQL</strong> (107-table enterprise DB): BM25 + dense embedding + Reciprocal Rank Fusion + FK-graph expansion → <strong>95.3% prompt token reduction</strong>, 72.5% execution accuracy.",
       "t250": "<strong>Semantic Layer</strong> (Mosaic MCP benchmark): Schema context compressed from 4,428 to 2,073 tokens (53%) → 37% cost reduction + <em>improved</em> complex JOIN accuracy (less noise = better LLM focus).",
-      "t251": "<strong>SLM-first + LLM fallback</strong> (IEEE 2026): 67% of queries fully resolved by local small models → anomaly detection → LLM only on failure. <strong>$0.0085/query vs. $0.094 LLM-only — 91% savings.</strong>",
+      "t251": "<strong>SLM-first + LLM fallback</strong> (IEEE 2026): 67% of queries fully resolved by local small models → anomaly detection → LLM only on failure. <strong>\/usr/bin/zsh.0085/query vs. \/usr/bin/zsh.094 LLM-only — 91% savings.</strong>",
       "t252": "Layer 4: Semantic Response Caching — 100% on Cache Hits",
       "t253": "Cache LLM responses by semantic similarity (embedding match, cosine similarity &gt; 0.8). Production hit rates: 40–60% for FAQ/support, 15–25% for data analytics queries. Mandatory design: include <code>tenant_id</code> in the cache key to prevent cross-tenant leakage.",
       "t254": "Layer 5: Agent Plan Caching — 50% Cost + 27% Latency Reduction",
@@ -790,111 +677,23 @@ footer p {
       "t259": "These techniques target different bottlenecks and <strong>compound without overlap</strong>:",
       "t260": "Cache prefix (90%) × Route to cheapest model (60–95%) × Batch non-urgent (50%) × Compress prompts (5–20×) × Cache responses (100% on repeat) = <strong>95–99% total cost reduction</strong> vs. naive frontier-model-only approach.",
       "t261": "The TRL composite pipeline validated <strong>18.1× cost improvement</strong> on favorable workloads with 100% quality preservation.",
-      "t262": "GDA Implementation Roadmap",
-      "t263": "These techniques are not theoretical — each maps to existing GDA code infrastructure. Here are the concrete integration paths, ordered by effort-to-impact ratio:",
-      "t264": "Level 1: Schema-Aware Prompt Caching (immediate)",
-      "t265": "<strong>Existing infrastructure:</strong> <code>src/services/discover.ts</code> (UC schema auto-discovery), <code>src/commands/genie.ts</code> (metric view queries), <code>src/agent/llm.ts</code> (LLM calls).",
-      "t266": "<strong>Action:</strong> Structure system prompt + tool schemas + per-tenant UC metadata in the prompt prefix with cache breakpoints. Each tenant's schema is relatively static — subsequent conversations pay only for user question tokens.",
-      "t267": "<strong>Expected:</strong> 90% input cost reduction. Genie equivalent: rebuilds knowledge context per query — no prefix caching.",
-      "t268": "Level 2: Multi-Tier Model Routing (architecture advantage)",
-      "t269": "<strong>Existing infrastructure:</strong> <code>src/services/llm-config.ts</code> (per-tenant model config), <code>config.ts</code> (<code>llm.model</code> + <code>llm.miniModel</code> dual slots), <code>src/agent/loop.ts</code> (agent execution loop).",
-      "t270": "<strong>Action:</strong> Add complexity classifier in agent loop — SQL generation attempts budget model first; syntax validation failure triggers cascading to frontier. Simple fact lookups, glossary queries, and status checks never need frontier models.",
-      "t271": "<strong>Expected routing:</strong> 80% budget / 15% mid / 5% frontier. <strong>Key advantage over Genie:</strong> Genie's 4-agent pipeline is architecturally fixed; GDA can route per-query.",
-      "t272": "Level 3: Context-Aware Schema Injection",
-      "t273": "<strong>Existing infrastructure:</strong> <code>src/services/discover.ts</code> (UC metadata), <code>src/commands/genie.ts</code> (dynamic metric query builder).",
-      "t274": "<strong>Action:</strong> Replace full-schema injection with semantic retrieval — embed the user question, retrieve only relevant tables/columns/metric views. Validated by AriaSQL (95% prompt reduction at 72.5% accuracy on 107 tables).",
-      "t275": "<strong>Key advantage over Genie:</strong> Genie caps at 30 tables per Agent. GDA can span more tables with <em>smaller</em> prompts via dynamic retrieval.",
-      "t276": "Level 4: SLM-First Text-to-SQL",
-      "t277": "<strong>Action:</strong> DeepSeek V4 Flash first → syntax validation → result sanity check → cascade to frontier only on failure. IEEE 2026: $0.0085/query vs $0.094 LLM-only.",
-      "t278": "Level 5: Tenant-Aware Semantic Caching",
-      "t279": "<strong>Action:</strong> Embedding-based response cache in agent-api layer. Cache key = <code>tenant_id + query_embedding</code>. Expected steady-state hit rate: 15–25% for analytics queries.",
-      "t280": "Level 6: Batch Offline Workloads",
-      "t281": "<strong>Existing infrastructure:</strong> <code>eval/</code> offline evaluation framework. Nightly regression runs, synthetic data generation, and freshness checks → batch API at 50% discount.",
-      "t282": "GDA vs. Genie: Cost Model Comparison",
-      "t283": "Optimization Layer",
-      "t284": "Genie's Approach",
-      "t285": "GDA's Approach",
-      "t286": "Savings",
-      "t287": "Schema Injection",
-      "t288": "Full knowledge store + 30-table static cap",
-      "t289": "Semantic retrieval of relevant schema subset",
-      "t290": "Prompt Prefix",
-      "t291": "Rebuilds knowledge context per query",
-      "t292": "System prompt + tool schema prefix cached",
-      "t293": "Model Selection",
-      "t294": "Fixed 4-agent pipeline (all queries)",
-      "t295": "80% budget / 15% mid / 5% frontier cascade",
-      "t296": "Repeat Queries",
-      "t297": "Full pipeline re-execution",
-      "t298": "Semantic cache → direct return",
-      "t299": "Offline Workloads",
-      "t300": "Real-time API",
-      "t301": "Batch API",
-      "t302": "SQL Execution",
-      "t303": "Serverless SQL ~$0.70–0.90/DBU",
-      "t304": "Configurable (Pro tier option)",
-      "t305": "Depends on config",
-      "t306": "<strong>Conservative estimate:</strong> Combining Layers 1–3 (schema retrieval + prompt caching + model routing), GDA achieves per-query costs at <strong>10–20% of Genie's equivalent</strong>.",
-      "t307": "<strong>Aggressive estimate:</strong> Full stack (adding SLM-first + semantic caching + batch), per-query costs drop to <strong>&lt;5% of Genie</strong>.",
-      "t308": "Architectural Cost Dynamics",
-      "t309": "The fundamental difference is not \"which model is cheaper\" — it's the <strong>shape of the cost curve</strong> as adoption scales:",
-      "t310": "Dimension",
-      "t311": "Databricks Genie",
-      "t312": "General Data Agent",
-      "t313": "<strong>Cost model</strong>",
-      "t314": "Linear growth (per query × per user)",
-      "t315": "Marginal decline (cache + learning + reuse)",
-      "t316": "<strong>Model strategy</strong>",
-      "t317": "Fixed multi-LLM pipeline",
-      "t318": "Dynamic routing by complexity",
-      "t319": "<strong>Context management</strong>",
-      "t320": "Static knowledge store per agent",
-      "t321": "Dynamic schema retrieval + prefix caching",
-      "t322": "<strong>Scale effect</strong>",
-      "t323": "More users = higher cost",
-      "t324": "More users = warmer caches = lower marginal cost",
-      "t325": "<strong>Cost predictability</strong>",
-      "t326": "High variance (query phrasing 20× swing)",
-      "t327": "Capped by tiered routing + schema guardrails",
-      "t328": "<strong>Per-tenant attribution</strong>",
-      "t329": "No built-in tenant-level billing",
-      "t330": "Per-tenant token tracking + cost breakdown",
-      "t331": "<strong>Product narrative:</strong> GDA doesn't compete with Genie on features — it competes on <em>economics</em>. Its cost-aware architecture makes data AI affordable at enterprise BU scale. Genie gets more expensive as you succeed; GDA gets cheaper.",
-      "t332": "Key References",
-      "t333": "Academic Papers",
-      "t334": "Industry & Tools",
-      "t335": "DA-Agent Survey · Compiled by Kira Chen & Zoey Shen · July 2026 · Based on public academic papers and industry documents"
-    }
-  };
-
-  function applyLang(lang) {
-    document.documentElement.setAttribute('data-lang', lang);
-    document.querySelectorAll('[data-i18n-id]').forEach(function(el) {
-      var key = el.getAttribute('data-i18n-id');
-      var content = TRANS[lang] && TRANS[lang][key];
-      if (content !== undefined && content !== null) {
-        el.innerHTML = content;
-      }
-    });
-    document.querySelectorAll('.lang-toggle-btn').forEach(function(btn) {
-      btn.innerHTML = lang === 'en'
-        ? '<span class="lang-active">EN</span> / ZH'
-        : 'EN / <span class="lang-active">ZH</span>';
-    });
-    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-    try { localStorage.setItem('da-survey-lang', lang); } catch(e) {}
-  }
-
-  window.toggleLang = function() {
-    var current = document.documentElement.getAttribute('data-lang') || 'en';
-    applyLang(current === 'en' ? 'zh' : 'en');
-  };
-
-  document.addEventListener('DOMContentLoaded', function() {
-    var saved = null;
-    try { saved = localStorage.getItem('da-survey-lang'); } catch(e) {}
-    applyLang(saved || 'en');
-  });
-})();
+      "t262": "Cost-Aware Architecture Principles",
+      "t263": "Beyond individual techniques, the research points to a deeper architectural insight: <strong>cost optimization must be designed in, not bolted on</strong>. Systems that treat cost as an afterthought inevitably converge to linear cost growth with adoption. Systems that design for cost-awareness from day one can achieve marginal cost decline.",
+      "t264": "Principle 1: Cache What's Static, Compute What's New",
+      "t265": "The highest-leverage architectural decision is separating static from dynamic context. System prompts, tool schemas, and domain metadata change infrequently — cache them aggressively at the provider level (90%+ discount). User questions and query results are the only genuinely incremental cost per interaction. A well-structured agent architecture should target <strong>&gt;80% of input tokens served from cache</strong> in steady state.",
+      "t266": "Principle 2: Route by Complexity, Not by Default",
+      "t267": "The 50× price spread between budget and frontier models invalidates any architecture that routes all queries to a single model tier. A cost-aware agent must classify query complexity before model selection. Production data shows <strong>75–85% of traffic resolves at the budget tier</strong> after tuning, with &lt;5% requiring frontier capability. The key engineering challenge is building a classifier cheap enough that its own cost doesn't erode the savings — heuristic and embedding-based classifiers operating in &lt;1ms achieve this.",
+      "t268": "Principle 3: Retrieve Schema, Don't Inject It",
+      "t269": "For Text-to-SQL agents, the largest source of token waste is full-schema injection. 100+ table databases generate prompts exceeding 40K tokens before the user question is even added. Semantic retrieval — embedding the question and fetching only the top-K relevant tables, columns, and metric definitions — reduces schema context by <strong>50–95%</strong> while often <em>improving</em> accuracy by reducing noise. This is validated across multiple independent benchmarks (AriaSQL, Mosaic MCP, IEEE 2026).",
+      "t270": "Principle 4: Cache Responses with Tenant Awareness",
+      "t271": "In multi-tenant data agent deployments, users within the same organization frequently ask semantically similar questions. Embedding-based semantic caching (cosine similarity &gt; 0.8) can achieve <strong>15–45% hit rates</strong> in production, with each hit eliminating the entire LLM + SQL execution pipeline. The critical design constraint: cache keys must include tenant identity to prevent cross-tenant data leakage.",
+      "t272": "Principle 5: Design for Marginal Cost Decline",
+      "t273": "The defining characteristic of a cost-aware agent architecture is the <strong>shape of its cost curve</strong>. A system with effective caching, routing, and retrieval gets cheaper per query as it learns query patterns. A system without these — like a fixed multi-agent pipeline running on serverless infrastructure — gets more expensive per query as the user base grows. The architectural goal is not a one-time cost reduction but a <strong>sustainable cost trajectory</strong> that makes data AI affordable at enterprise scale.",
+      "t274": "<strong>Combined target:</strong> Applying all five principles — prefix caching (90%) + model routing (60–95%) + schema retrieval (50–95%) + semantic caching (15–45% hit rate) + batch for offline workloads (50%) — a well-architected data agent can achieve per-query costs at <strong>5–20% of a naive frontier-model-only approach</strong>, with the gap widening as adoption scales.",
+      "t275": "Key References",
+      "t276": "Academic Papers",
+      "t277": "Industry & Tools",
+      "t278": "DA-Agent Survey · Compiled by Kira Chen · July 2026 · Based on public academic papers and industry documents"
+    },})();
 </script></body>
 </html>
